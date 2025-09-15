@@ -17,10 +17,10 @@ export class TamanhoModel extends BaseModel<Tamanho> {
     return rows as Tamanho[];
   }
 
-  async findBySigla(sigla: string): Promise<Tamanho | null> {
-    const [rows] = await pool.execute('SELECT * FROM tamanho WHERE sigla = ? AND ativo = 1', [sigla]);
-    const results = rows as Tamanho[];
-    return results.length > 0 ? results[0] : null;
+  async count(): Promise<number> {
+    const [rows] = await pool.execute('SELECT COUNT(*) as total FROM tamanho WHERE ativo = 1');
+    const result = rows as { total: number }[];
+    return result[0].total;
   }
 }
 

@@ -5,8 +5,10 @@ import { tamanhoModel } from '../models/tamanho';
 export const getTamanhos = async (req: Request, res: Response) => {
   try {
     const tamanhos = await tamanhoModel.findAll();
+    const totalTamanhos = await tamanhoModel.count();
     res.render('cadastros/tamanhos/index', {
       tamanhos,
+      totalTamanhos,
       title: 'Tamanho',
       currentPage: 'tamanho',
       layout: 'layouts/base',

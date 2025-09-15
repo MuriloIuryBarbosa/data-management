@@ -12,9 +12,10 @@ export class FamiliaModel extends BaseModel<Familia> {
     return results.length > 0 ? results[0] : null;
   }
 
-  async findActive(): Promise<Familia[]> {
-    const [rows] = await pool.execute('SELECT * FROM familia WHERE ativo = 1 ORDER BY nome');
-    return rows as Familia[];
+  async count(): Promise<number> {
+    const [rows] = await pool.execute('SELECT COUNT(*) as total FROM familia WHERE ativo = 1');
+    const result = rows as { total: number }[];
+    return result[0].total;
   }
 }
 

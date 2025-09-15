@@ -7,8 +7,10 @@ import { corModel } from '../models/cor';
 export const getFamilias = async (req: Request, res: Response) => {
   try {
     const familias = await familiaModel.findAll();
+    const totalFamilias = await familiaModel.count();
     res.render('cadastros/familias/index', {
       familias,
+      totalFamilias,
       title: 'Família',
       currentPage: 'familia',
       layout: 'layouts/base',
