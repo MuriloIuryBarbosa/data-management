@@ -11,7 +11,6 @@ export const getCores = async (req: Request, res: Response) => {
       totalCores,
       title: 'Cor',
       currentPage: 'cor',
-      layout: 'layouts/base',
       user: (req as any).user
     });
   } catch (error) {

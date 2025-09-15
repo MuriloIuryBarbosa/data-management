@@ -6,6 +6,8 @@ import authRoutes from './routes/auth';
 import mainRoutes from './routes/main';
 import logoutRoutes from './routes/logout';
 import cadastrosRoutes from './routes/cadastros';
+import planejamentoRoutes from './routes/planejamento';
+import executivoRoutes from './routes/executivo';
 import { initDatabase } from './models/database';
 
 const app = express();
@@ -34,6 +36,8 @@ app.use('/', authRoutes);
 app.use('/', mainRoutes);
 app.use('/', logoutRoutes);
 app.use('/cadastros', cadastrosRoutes);
+app.use('/planejamento', planejamentoRoutes);
+app.use('/executivo', executivoRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));

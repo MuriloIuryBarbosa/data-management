@@ -11,7 +11,6 @@ export const getTamanhos = async (req: Request, res: Response) => {
       totalTamanhos,
       title: 'Tamanho',
       currentPage: 'tamanho',
-      layout: 'layouts/base',
       user: (req as any).user
     });
   } catch (error) {

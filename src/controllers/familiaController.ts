@@ -13,7 +13,6 @@ export const getFamilias = async (req: Request, res: Response) => {
       totalFamilias,
       title: 'Família',
       currentPage: 'familia',
-      layout: 'layouts/base',
       user: (req as any).user
     });
   } catch (error) {
