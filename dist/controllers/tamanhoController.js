@@ -6,11 +6,12 @@ const tamanho_1 = require("../models/tamanho");
 const getTamanhos = async (req, res) => {
     try {
         const tamanhos = await tamanho_1.tamanhoModel.findAll();
+        const totalTamanhos = await tamanho_1.tamanhoModel.count();
         res.render('cadastros/tamanhos/index', {
             tamanhos,
+            totalTamanhos,
             title: 'Tamanho',
             currentPage: 'tamanho',
-            layout: 'layouts/base',
             user: req.user
         });
     }

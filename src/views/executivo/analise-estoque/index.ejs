@@ -71,8 +71,8 @@
             <button class="btn btn-primary me-2" onclick="atualizarDados()">
               <i class="fas fa-sync"></i> Atualizar Dados
             </button>
-            <button class="btn btn-success" onclick="importarArquivos()">
-              <i class="fas fa-upload"></i> Importar Arquivos
+            <button class="btn btn-success" onclick="exportarDados()">
+              <i class="fas fa-download"></i> Exportar
             </button>
           </div>
         </div>
@@ -85,8 +85,8 @@
         <div class="card bg-primary text-white">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-boxes"></i> Total Produtos</h5>
-            <h3 id="totalProdutos">0</h3>
-            <small>Produtos em estoque</small>
+            <h3><%= estatisticas.totalProdutos %></h3>
+            <small>Produtos únicos</small>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@
         <div class="card bg-success text-white">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-weight"></i> Peso Total</h5>
-            <h3 id="pesoTotal">0.00</h3>
+            <h3><%= estatisticas.pesoTotal %></h3>
             <small>Toneladas</small>
           </div>
         </div>
@@ -103,7 +103,7 @@
         <div class="card bg-warning text-white">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-map-marker-alt"></i> Localizações</h5>
-            <h3 id="totalLocalizacoes">0</h3>
+            <h3><%= estatisticas.totalLocalizacoes %></h3>
             <small>Locais ativos</small>
           </div>
         </div>
@@ -112,44 +112,213 @@
         <div class="card bg-info text-white">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-tags"></i> Famílias</h5>
-            <h3 id="totalFamilias">0</h3>
+            <h3><%= estatisticas.totalFamilias %></h3>
             <small>Categorias</small>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tabela de Dados -->
-    <div class="row">
+    <!-- Filtros -->
+    <div class="row mb-4">
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <h5><i class="fas fa-table"></i> Dados de Estoque</h5>
+            <h5><i class="fas fa-filter"></i> Filtros</h5>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Arquivo</th>
-                    <th>Localização</th>
-                    <th>Código</th>
-                    <th>Produto</th>
-                    <th>Família</th>
-                    <th>Quantidade</th>
-                    <th>Peso Líq.</th>
-                    <th>Peso Bruto</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tabelaEstoque">
-                  <tr>
-                    <td colspan="9" class="text-center text-muted">
-                      <i class="fas fa-info-circle"></i> Clique em "Atualizar Dados" para carregar as informações.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <form method="GET" action="/executivo/analise-estoque" class="row g-3">
+              <div class="col-md-4">
+                <label for="material" class="form-label">Material/Código</label>
+                <input type="text" class="form-control" id="material" name="material"
+                       value="<%= filtrosAtivos.material || '' %>"
+                       placeholder="Digite código ou nome do material">
+              </div>
+              <div class="col-md-3">
+                <label for="localizacao" class="form-label">Localização</label>
+                <select class="form-select" id="localizacao" name="localizacao">
+                  <option value="">Todas as localizações</option>
+                  <% filtrosDisponiveis.localizacoes.forEach(function(loc) { %>
+                    <option value="<%= loc.localizacao %>"
+                            <%= filtrosAtivos.localizacao === loc.localizacao ? 'selected' : '' %>>
+                      <%= loc.localizacao %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label for="familia" class="form-label">Família</label>
+                <select class="form-select" id="familia" name="familia">
+                  <option value="">Todas as famílias</option>
+                  <% filtrosDisponiveis.familias.forEach(function(fam) { %>
+                    <option value="<%= fam.familia %>"
+                            <%= filtrosAtivos.familia === fam.familia ? 'selected' : '' %>>
+                      <%= fam.familia %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="fas fa-search"></i> Filtrar
+                </button>
+                <a href="/executivo/analise-estoque" class="btn btn-secondary">
+                  <i class="fas fa-times"></i> Limpar
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Abas de Análise -->
+    <div class="row">
+      <div class="col-12">
+        <ul class="nav nav-tabs" id="analiseTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="material-tab" data-bs-toggle="tab" data-bs-target="#material" type="button" role="tab">
+              <i class="fas fa-box"></i> Por Material
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="localizacao-tab" data-bs-toggle="tab" data-bs-target="#localizacao" type="button" role="tab">
+              <i class="fas fa-map-marker-alt"></i> Por Localização
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="familia-tab" data-bs-toggle="tab" data-bs-target="#familia" type="button" role="tab">
+              <i class="fas fa-tags"></i> Por Família
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="analiseTabContent">
+          <!-- Aba Material -->
+          <div class="tab-pane fade show active" id="material" role="tabpanel">
+            <div class="card mt-3">
+              <div class="card-header">
+                <h5><i class="fas fa-box"></i> Análise por Material</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Família</th>
+                        <th>Quantidade Total</th>
+                        <th>Peso Total (kg)</th>
+                        <th>Registros</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% dadosPorMaterial.forEach(function(item) { %>
+                        <tr>
+                          <td><%= item.codigo %></td>
+                          <td><%= item.produto_nome %></td>
+                          <td><%= item.familia || 'N/A' %></td>
+                          <td class="text-end"><%= item.quantidade_total %></td>
+                          <td class="text-end"><%= item.peso_total %></td>
+                          <td class="text-center"><%= item.registros %></td>
+                        </tr>
+                      <% }); %>
+                      <% if (dadosPorMaterial.length === 0) { %>
+                        <tr>
+                          <td colspan="6" class="text-center text-muted">
+                            <i class="fas fa-info-circle"></i> Nenhum dado encontrado com os filtros aplicados.
+                          </td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aba Localização -->
+          <div class="tab-pane fade" id="localizacao" role="tabpanel">
+            <div class="card mt-3">
+              <div class="card-header">
+                <h5><i class="fas fa-map-marker-alt"></i> Análise por Localização</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Localização</th>
+                        <th>Produtos Únicos</th>
+                        <th>Quantidade Total</th>
+                        <th>Peso Total (kg)</th>
+                        <th>Registros</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% dadosPorLocalizacao.forEach(function(item) { %>
+                        <tr>
+                          <td><%= item.localizacao %></td>
+                          <td class="text-center"><%= item.produtos_unicos %></td>
+                          <td class="text-end"><%= item.quantidade_total %></td>
+                          <td class="text-end"><%= item.peso_total %></td>
+                          <td class="text-center"><%= item.registros %></td>
+                        </tr>
+                      <% }); %>
+                      <% if (dadosPorLocalizacao.length === 0) { %>
+                        <tr>
+                          <td colspan="5" class="text-center text-muted">
+                            <i class="fas fa-info-circle"></i> Nenhum dado encontrado com os filtros aplicados.
+                          </td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aba Família -->
+          <div class="tab-pane fade" id="familia" role="tabpanel">
+            <div class="card mt-3">
+              <div class="card-header">
+                <h5><i class="fas fa-tags"></i> Análise por Família</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Família</th>
+                        <th>Produtos Únicos</th>
+                        <th>Quantidade Total</th>
+                        <th>Peso Total (kg)</th>
+                        <th>Registros</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% dadosPorFamilia.forEach(function(item) { %>
+                        <tr>
+                          <td><%= item.familia %></td>
+                          <td class="text-center"><%= item.produtos_unicos %></td>
+                          <td class="text-end"><%= item.quantidade_total %></td>
+                          <td class="text-end"><%= item.peso_total %></td>
+                          <td class="text-center"><%= item.registros %></td>
+                        </tr>
+                      <% }); %>
+                      <% if (dadosPorFamilia.length === 0) { %>
+                        <tr>
+                          <td colspan="5" class="text-center text-muted">
+                            <i class="fas fa-info-circle"></i> Nenhum dado encontrado com os filtros aplicados.
+                          </td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -157,22 +326,57 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // Dados dos filtros ativos passados do servidor
+    const filtrosAtivos = {
+      material: '<%= filtrosAtivos.material || "" %>',
+      localizacao: '<%= filtrosAtivos.localizacao || "" %>',
+      familia: '<%= filtrosAtivos.familia || "" %>'
+    };
+
     function atualizarDados() {
-      // TODO: Implementar atualização de dados via AJAX
-      alert('Funcionalidade de atualização será implementada na próxima etapa.');
+      // Recarregar a página para atualizar os dados
+      window.location.reload();
     }
 
-    function importarArquivos() {
-      // TODO: Implementar importação de arquivos
-      alert('Funcionalidade de importação será implementada na próxima etapa.');
+    function exportarDados() {
+      // Criar URL com os filtros atuais
+      let url = '/executivo/analise-estoque/export?';
+      if (filtrosAtivos.material) url += `material=${encodeURIComponent(filtrosAtivos.material)}&`;
+      if (filtrosAtivos.localizacao) url += `localizacao=${encodeURIComponent(filtrosAtivos.localizacao)}&`;
+      if (filtrosAtivos.familia) url += `familia=${encodeURIComponent(filtrosAtivos.familia)}&`;
+
+      // Remover o último & se existir
+      if (url.endsWith('&')) url = url.slice(0, -1);
+
+      // Por enquanto, apenas mostrar a URL (implementar exportação depois)
+      alert('Funcionalidade de exportação será implementada. URL: ' + url);
+    }
+
+    // Função para formatar números
+    function formatarNumero(num) {
+      if (num === null || num === undefined) return '0';
+      return new Intl.NumberFormat('pt-BR').format(num);
     }
 
     // Carregar dados iniciais quando a página carregar
     document.addEventListener('DOMContentLoaded', function() {
-      // TODO: Carregar estatísticas iniciais
       console.log('Página de Análise de Estoque carregada');
+
+      // Adicionar formatação aos números nas tabelas
+      const numeroCells = document.querySelectorAll('td.text-end');
+      numeroCells.forEach(cell => {
+        const valor = parseFloat(cell.textContent.replace(',', '.'));
+        if (!isNaN(valor)) {
+          cell.textContent = formatarNumero(valor);
+        }
+      });
+    });
+
+    // Adicionar funcionalidade de busca em tempo real nos filtros
+    document.getElementById('material').addEventListener('input', function() {
+      // Opcional: implementar busca em tempo real
+      console.log('Busca por material:', this.value);
     });
   </script>
 </body>

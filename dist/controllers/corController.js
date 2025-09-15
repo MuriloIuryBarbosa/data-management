@@ -6,11 +6,12 @@ const cor_1 = require("../models/cor");
 const getCores = async (req, res) => {
     try {
         const cores = await cor_1.corModel.findAll();
+        const totalCores = await cor_1.corModel.count();
         res.render('cadastros/cores/index', {
             cores,
+            totalCores,
             title: 'Cor',
             currentPage: 'cor',
-            layout: 'layouts/base',
             user: req.user
         });
     }

@@ -96,6 +96,91 @@ const initDatabase = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+        // Estoque tables
+        // confec01 table
+        await conn.execute(`
+      CREATE TABLE IF NOT EXISTS estoque_confec01 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        localizacao VARCHAR(20),
+        codigo VARCHAR(20),
+        apelido VARCHAR(100),
+        familia VARCHAR(100),
+        qual VARCHAR(10),
+        qmm VARCHAR(10),
+        cor VARCHAR(10),
+        qtde DECIMAL(10,2),
+        desc_cor VARCHAR(50),
+        tam VARCHAR(10),
+        tamd VARCHAR(10),
+        embalagem_vol VARCHAR(50),
+        un VARCHAR(20),
+        peso_liq DECIMAL(10,3),
+        peso_bruto DECIMAL(10,3),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        // estsc01 table
+        await conn.execute(`
+      CREATE TABLE IF NOT EXISTS estoque_estsc01 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        localizacao VARCHAR(20),
+        codigo VARCHAR(20),
+        apelido VARCHAR(100),
+        familia VARCHAR(100),
+        qual VARCHAR(10),
+        qmm VARCHAR(10),
+        cor VARCHAR(10),
+        qtde DECIMAL(10,2),
+        desc_cor VARCHAR(50),
+        tam VARCHAR(10),
+        tamd VARCHAR(10),
+        embalagem_vol VARCHAR(50),
+        un VARCHAR(20),
+        peso_liq DECIMAL(10,3),
+        peso_bruto DECIMAL(10,3),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        // fatex01 table
+        await conn.execute(`
+      CREATE TABLE IF NOT EXISTS estoque_fatex01 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        localizacao VARCHAR(20),
+        codigo VARCHAR(20),
+        apelido VARCHAR(100),
+        familia VARCHAR(100),
+        qual VARCHAR(10),
+        qmm VARCHAR(10),
+        cor VARCHAR(10),
+        qtde DECIMAL(10,2),
+        desc_cor VARCHAR(50),
+        tam VARCHAR(10),
+        tamd VARCHAR(10),
+        embalagem_vol VARCHAR(50),
+        un VARCHAR(20),
+        peso_liq DECIMAL(10,3),
+        peso_bruto DECIMAL(10,3),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        // tecido01 table
+        await conn.execute(`
+      CREATE TABLE IF NOT EXISTS estoque_tecido01 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        localizacao VARCHAR(20),
+        tipo VARCHAR(20),
+        produto VARCHAR(100),
+        entrada DATE,
+        qual VARCHAR(10),
+        metros DECIMAL(10,2),
+        lancamento DATE,
+        oper VARCHAR(10),
+        peso DECIMAL(10,3),
+        un VARCHAR(20),
+        nota VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
         conn.release();
         console.log('Database tables initialized successfully.');
     }

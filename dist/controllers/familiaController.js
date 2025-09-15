@@ -6,11 +6,12 @@ const familia_1 = require("../models/familia");
 const getFamilias = async (req, res) => {
     try {
         const familias = await familia_1.familiaModel.findAll();
+        const totalFamilias = await familia_1.familiaModel.count();
         res.render('cadastros/familias/index', {
             familias,
+            totalFamilias,
             title: 'Família',
             currentPage: 'familia',
-            layout: 'layouts/base',
             user: req.user
         });
     }

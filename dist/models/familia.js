@@ -12,9 +12,10 @@ class FamiliaModel extends entities_1.BaseModel {
         const results = rows;
         return results.length > 0 ? results[0] : null;
     }
-    async findActive() {
-        const [rows] = await database_1.pool.execute('SELECT * FROM familia WHERE ativo = 1 ORDER BY nome');
-        return rows;
+    async count() {
+        const [rows] = await database_1.pool.execute('SELECT COUNT(*) as total FROM familia WHERE ativo = 1');
+        const result = rows;
+        return result[0].total;
     }
 }
 exports.FamiliaModel = FamiliaModel;

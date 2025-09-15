@@ -16,10 +16,10 @@ class CorModel extends entities_1.BaseModel {
         const [rows] = await database_1.pool.execute('SELECT * FROM cor WHERE ativo = 1 ORDER BY nome');
         return rows;
     }
-    async findByHex(codigoHex) {
-        const [rows] = await database_1.pool.execute('SELECT * FROM cor WHERE codigo_hex = ? AND ativo = 1', [codigoHex]);
-        const results = rows;
-        return results.length > 0 ? results[0] : null;
+    async count() {
+        const [rows] = await database_1.pool.execute('SELECT COUNT(*) as total FROM cor WHERE ativo = 1');
+        const result = rows;
+        return result[0].total;
     }
 }
 exports.CorModel = CorModel;
