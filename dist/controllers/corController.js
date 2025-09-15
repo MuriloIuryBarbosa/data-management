@@ -6,7 +6,13 @@ const cor_1 = require("../models/cor");
 const getCores = async (req, res) => {
     try {
         const cores = await cor_1.corModel.findAll();
-        res.render('cadastros/cores/index', { cores, title: 'Cores' });
+        res.render('cadastros/cores/index', {
+            cores,
+            title: 'Cor',
+            currentPage: 'cor',
+            layout: 'layouts/base',
+            user: req.user
+        });
     }
     catch (error) {
         res.status(500).json({ error: 'Erro ao buscar cores' });
@@ -14,7 +20,13 @@ const getCores = async (req, res) => {
 };
 exports.getCores = getCores;
 const getNovaCor = (req, res) => {
-    res.render('cadastros/cores/form', { cor: null, title: 'Nova Cor' });
+    res.render('cadastros/cores/form', {
+        cor: null,
+        title: 'Nova Cor',
+        currentPage: 'cor',
+        layout: 'layouts/base',
+        user: req.user
+    });
 };
 exports.getNovaCor = getNovaCor;
 const postCor = async (req, res) => {
@@ -43,7 +55,13 @@ const getEditarCor = async (req, res) => {
         if (!cor) {
             return res.status(404).json({ error: 'Cor não encontrada' });
         }
-        res.render('cadastros/cores/form', { cor, title: 'Editar Cor' });
+        res.render('cadastros/cores/form', {
+            cor,
+            title: 'Editar Cor',
+            currentPage: 'cor',
+            layout: 'layouts/base',
+            user: req.user
+        });
     }
     catch (error) {
         res.status(500).json({ error: 'Erro ao buscar cor' });

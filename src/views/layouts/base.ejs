@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Sistema de Gestão de Dados' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+        .cadastros-submenu {
+            max-height: 200px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .cadastros-submenu.collapsed {
+            max-height: 0;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .cadastros-header:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .cadastros-icon {
+            transition: transform 0.3s ease;
+        }
+        .cadastros-icon.rotated {
+            transform: rotate(180deg);
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        .main-content {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .navbar-custom {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .sidebar-toggle {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -250px;
+                width: 250px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar p-3" id="sidebar">
+            <div class="d-flex align-items-center mb-4">
+                <i class="fas fa-database fa-2x me-2"></i>
+                <h5 class="mb-0">Gestão de Dados</h5>
+            </div>
+
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <h6 class="text-white-50 px-3 mb-2 cadastros-header" onclick="toggleCadastrosMenu()" style="cursor: pointer;">
+                        <i class="fas fa-folder-open me-2"></i>
+                        Cadastros
+                        <i class="fas fa-chevron-down float-end cadastros-icon" id="cadastros-chevron"></i>
+                    </h6>
+                </li>
+
+                <div id="cadastros-submenu" class="cadastros-submenu">
+                    <li class="nav-item mb-1">
+                        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'familia' ? 'active' : '' %>" href="/cadastros/familias">
+                            <i class="fas fa-users ms-3 me-2"></i>
+                            Família
+                        </a>
+                    </li>
+
+                    <li class="nav-item mb-1">
+                        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'tamanho' ? 'active' : '' %>" href="/cadastros/tamanhos">
+                            <i class="fas fa-expand ms-3 me-2"></i>
+                            Tamanho
+                        </a>
+                    </li>
+
+                    <li class="nav-item mb-1">
+                        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'cor' ? 'active' : '' %>" href="/cadastros/cores">
+                            <i class="fas fa-palette ms-3 me-2"></i>
+                            Cor
+                        </a>
+                    </li>
+                </div>
+
+                <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+                <li class="nav-item mb-2 mt-4">
+                    <h6 class="text-white-50 px-3 mb-2">
+                        <i class="fas fa-cog me-2"></i>
+                        Administração
+                    </h6>
+                </li>
+
+                <li class="nav-item mb-1">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'users' ? 'active' : '' %>" href="/admin/users">
+                        <i class="fas fa-user-shield"></i>
+                        Usuários
+                    </a>
+                </li>
+                <% } %>
+
+                <li class="nav-item mt-auto">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-custom">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-secondary sidebar-toggle me-2" type="button" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <div class="d-flex align-items-center ms-auto">
+                        <span class="me-3">
+                            <i class="fas fa-user me-1"></i>
+                            Olá, <%= typeof user !== 'undefined' && user ? user.name : 'Usuário' %>
+                        </span>
+
+                        <% if (typeof user !== 'undefined' && user && user.role) { %>
+                        <span class="badge bg-<%= typeof user !== 'undefined' && user && user.role === 'admin' ? 'danger' : 'primary' %>">
+                            <%= typeof user !== 'undefined' && user && user.role === 'admin' ? 'Administrador' : 'Usuário' %>
+                        </span>
+                        <% } %>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <div class="container-fluid p-4">
+                <%- body %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        function toggleCadastrosMenu() {
+            const submenu = document.getElementById('cadastros-submenu');
+            const chevron = document.getElementById('cadastros-chevron');
+
+            submenu.classList.toggle('collapsed');
+            chevron.classList.toggle('rotated');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = event.target.closest('.sidebar-toggle');
+
+            if (!sidebar.contains(event.target) && !toggleBtn && window.innerWidth <= 768) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Initialize submenu state (expanded by default)
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = '<%= typeof currentPage !== "undefined" ? currentPage : "" %>';
+            const cadastrosPages = ['familia', 'tamanho', 'cor'];
+
+            if (cadastrosPages.includes(currentPage)) {
+                // Keep submenu expanded if user is on a cadastros page
+                const submenu = document.getElementById('cadastros-submenu');
+                const chevron = document.getElementById('cadastros-chevron');
+                submenu.classList.remove('collapsed');
+                chevron.classList.remove('rotated');
+            } else {
+                // Collapse submenu by default on other pages
+                const submenu = document.getElementById('cadastros-submenu');
+                const chevron = document.getElementById('cadastros-chevron');
+                submenu.classList.add('collapsed');
+                chevron.classList.add('rotated');
+            }
+        });
+    </script>
+</body>
+</html>

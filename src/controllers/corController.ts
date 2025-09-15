@@ -5,14 +5,28 @@ import { corModel } from '../models/cor';
 export const getCores = async (req: Request, res: Response) => {
   try {
     const cores = await corModel.findAll();
-    res.render('cadastros/cores/index', { cores, title: 'Cores' });
+    const totalCores = await corModel.count();
+    res.render('cadastros/cores/index', {
+      cores,
+      totalCores,
+      title: 'Cor',
+      currentPage: 'cor',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar cores' });
   }
 };
 
 export const getNovaCor = (req: Request, res: Response) => {
-  res.render('cadastros/cores/form', { cor: null, title: 'Nova Cor' });
+  res.render('cadastros/cores/form', {
+    cor: null,
+    title: 'Nova Cor',
+    currentPage: 'cor',
+    layout: 'layouts/base',
+    user: (req as any).user
+  });
 };
 
 export const postCor = async (req: Request, res: Response) => {
@@ -44,7 +58,13 @@ export const getEditarCor = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Cor não encontrada' });
     }
 
-    res.render('cadastros/cores/form', { cor, title: 'Editar Cor' });
+    res.render('cadastros/cores/form', {
+      cor,
+      title: 'Editar Cor',
+      currentPage: 'cor',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar cor' });
   }

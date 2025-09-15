@@ -37,7 +37,7 @@ export const initDatabase = async () => {
       password: process.env.DB_PASSWORD || '',
     });
 
-    await connection.execute('CREATE DATABASE IF NOT EXISTS ??', [dbConfig.database]);
+    await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\``, []);
     await connection.end();
 
     // Create tables

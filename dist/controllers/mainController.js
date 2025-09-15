@@ -16,6 +16,11 @@ const authenticateToken = (req, res, next) => {
 };
 exports.authenticateToken = authenticateToken;
 const getDashboard = (req, res) => {
-    res.render('dashboard', { user: req.user });
+    res.render('dashboard', {
+        user: req.user,
+        title: 'Dashboard',
+        currentPage: 'dashboard',
+        layout: 'layouts/base'
+    });
 };
 exports.getDashboard = getDashboard;

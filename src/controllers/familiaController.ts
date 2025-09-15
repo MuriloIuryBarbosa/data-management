@@ -7,14 +7,26 @@ import { corModel } from '../models/cor';
 export const getFamilias = async (req: Request, res: Response) => {
   try {
     const familias = await familiaModel.findAll();
-    res.render('cadastros/familias/index', { familias, title: 'Famílias' });
+    res.render('cadastros/familias/index', {
+      familias,
+      title: 'Família',
+      currentPage: 'familia',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar famílias' });
   }
 };
 
 export const getNovaFamilia = (req: Request, res: Response) => {
-  res.render('cadastros/familias/form', { familia: null, title: 'Nova Família' });
+  res.render('cadastros/familias/form', {
+    familia: null,
+    title: 'Nova Família',
+    currentPage: 'familia',
+    layout: 'layouts/base',
+    user: (req as any).user
+  });
 };
 
 export const postFamilia = async (req: Request, res: Response) => {
@@ -46,7 +58,13 @@ export const getEditarFamilia = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Família não encontrada' });
     }
 
-    res.render('cadastros/familias/form', { familia, title: 'Editar Família' });
+    res.render('cadastros/familias/form', {
+      familia,
+      title: 'Editar Família',
+      currentPage: 'familia',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar família' });
   }

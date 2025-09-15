@@ -37,7 +37,7 @@ const initDatabase = async () => {
             user: process.env.DB_USER || 'root',
             password: process.env.DB_PASSWORD || '',
         });
-        await connection.execute('CREATE DATABASE IF NOT EXISTS ??', [dbConfig.database]);
+        await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\``, []);
         await connection.end();
         // Create tables
         const conn = await exports.pool.getConnection();

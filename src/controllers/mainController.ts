@@ -17,5 +17,10 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 };
 
 export const getDashboard = (req: Request, res: Response) => {
-  res.render('dashboard', { user: (req as any).user });
+  res.render('dashboard', {
+    user: (req as any).user,
+    title: 'Dashboard',
+    currentPage: 'dashboard',
+    layout: 'layouts/base'
+  });
 };

@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import expressLayouts from 'express-ejs-layouts';
 import authRoutes from './routes/auth';
 import mainRoutes from './routes/main';
 import logoutRoutes from './routes/logout';
@@ -10,12 +11,18 @@ import { initDatabase } from './models/database';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// View engine configuration
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', false); // Disable auto layout application
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 
 // Initialize database
 (async () => {

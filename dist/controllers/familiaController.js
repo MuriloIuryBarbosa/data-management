@@ -6,7 +6,13 @@ const familia_1 = require("../models/familia");
 const getFamilias = async (req, res) => {
     try {
         const familias = await familia_1.familiaModel.findAll();
-        res.render('cadastros/familias/index', { familias, title: 'Famílias' });
+        res.render('cadastros/familias/index', {
+            familias,
+            title: 'Família',
+            currentPage: 'familia',
+            layout: 'layouts/base',
+            user: req.user
+        });
     }
     catch (error) {
         res.status(500).json({ error: 'Erro ao buscar famílias' });
@@ -14,7 +20,13 @@ const getFamilias = async (req, res) => {
 };
 exports.getFamilias = getFamilias;
 const getNovaFamilia = (req, res) => {
-    res.render('cadastros/familias/form', { familia: null, title: 'Nova Família' });
+    res.render('cadastros/familias/form', {
+        familia: null,
+        title: 'Nova Família',
+        currentPage: 'familia',
+        layout: 'layouts/base',
+        user: req.user
+    });
 };
 exports.getNovaFamilia = getNovaFamilia;
 const postFamilia = async (req, res) => {
@@ -43,7 +55,13 @@ const getEditarFamilia = async (req, res) => {
         if (!familia) {
             return res.status(404).json({ error: 'Família não encontrada' });
         }
-        res.render('cadastros/familias/form', { familia, title: 'Editar Família' });
+        res.render('cadastros/familias/form', {
+            familia,
+            title: 'Editar Família',
+            currentPage: 'familia',
+            layout: 'layouts/base',
+            user: req.user
+        });
     }
     catch (error) {
         res.status(500).json({ error: 'Erro ao buscar família' });

@@ -5,14 +5,26 @@ import { tamanhoModel } from '../models/tamanho';
 export const getTamanhos = async (req: Request, res: Response) => {
   try {
     const tamanhos = await tamanhoModel.findAll();
-    res.render('cadastros/tamanhos/index', { tamanhos, title: 'Tamanhos' });
+    res.render('cadastros/tamanhos/index', {
+      tamanhos,
+      title: 'Tamanho',
+      currentPage: 'tamanho',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar tamanhos' });
   }
 };
 
 export const getNovoTamanho = (req: Request, res: Response) => {
-  res.render('cadastros/tamanhos/form', { tamanho: null, title: 'Novo Tamanho' });
+  res.render('cadastros/tamanhos/form', {
+    tamanho: null,
+    title: 'Novo Tamanho',
+    currentPage: 'tamanho',
+    layout: 'layouts/base',
+    user: (req as any).user
+  });
 };
 
 export const postTamanho = async (req: Request, res: Response) => {
@@ -45,7 +57,13 @@ export const getEditarTamanho = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Tamanho não encontrado' });
     }
 
-    res.render('cadastros/tamanhos/form', { tamanho, title: 'Editar Tamanho' });
+    res.render('cadastros/tamanhos/form', {
+      tamanho,
+      title: 'Editar Tamanho',
+      currentPage: 'tamanho',
+      layout: 'layouts/base',
+      user: (req as any).user
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar tamanho' });
   }

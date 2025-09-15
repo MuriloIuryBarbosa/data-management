@@ -17,10 +17,10 @@ export class CorModel extends BaseModel<Cor> {
     return rows as Cor[];
   }
 
-  async findByHex(codigoHex: string): Promise<Cor | null> {
-    const [rows] = await pool.execute('SELECT * FROM cor WHERE codigo_hex = ? AND ativo = 1', [codigoHex]);
-    const results = rows as Cor[];
-    return results.length > 0 ? results[0] : null;
+  async count(): Promise<number> {
+    const [rows] = await pool.execute('SELECT COUNT(*) as total FROM cor WHERE ativo = 1');
+    const result = rows as { total: number }[];
+    return result[0].total;
   }
 }
 
