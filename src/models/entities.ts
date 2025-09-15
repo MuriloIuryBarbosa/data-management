@@ -1,4 +1,4 @@
-import { db } from './database';
+import { pool } from './database';
 
 export interface BaseEntity {
   id: number;
@@ -35,77 +35,49 @@ export class BaseModel<T extends BaseEntity> {
   }
 
   async findAll(): Promise<T[]> {
-    return new Promise((resolve, reject) => {
-      db.all(`SELECT * FROM ${this.tableName} ORDER BY id DESC`, (err, rows: T[]) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    const [rows] = await pool.execute(`SELECT * FROM ${this.tableName} ORDER BY id DESC`);
+    return rows as T[];
   }
 
   async findById(id: number): Promise<T | null> {
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM ${this.tableName} WHERE id = ?`, [id], (err, row: T) => {
-        if (err) reject(err);
-        else resolve(row || null);
-      });
-    });
+    const [rows] = await pool.execute(`SELECT * FROM ${this.tableName} WHERE id = ?`, [id]);
+    const results = rows as T[];
+    return results.length > 0 ? results[0] : null;
   }
 
   async create(data: Omit<T, 'id' | 'created_at' | 'updated_at'>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      const columns = Object.keys(data).join(', ');
-      const placeholders = Object.keys(data).map(() => '?').join(', ');
-      const values = Object.values(data);
+    const columns = Object.keys(data).join(', ');
+    const placeholders = Object.keys(data).map(() => '?').join(', ');
+    const values = Object.values(data);
 
-      const tableName = this.tableName;
+    const sql = `INSERT INTO ${this.tableName} (${columns}, created_at, updated_at) VALUES (${placeholders}, NOW(), NOW())`;
 
-      const sql = `INSERT INTO ${tableName} (${columns}, created_at, updated_at) VALUES (${placeholders}, datetime('now'), datetime('now'))`;
+    const [result] = await pool.execute(sql, values);
+    const insertId = (result as any).insertId;
 
-      db.run(sql, [...values], function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          const newId = this.lastID;
-          // Buscar o registro criado
-          db.get(`SELECT * FROM ${tableName} WHERE id = ?`, [newId], (err, row: T) => {
-            if (err) reject(err);
-            else resolve(row);
-          });
-        }
-      });
-    });
+    // Buscar o registro criado
+    const [rows] = await pool.execute(`SELECT * FROM ${this.tableName} WHERE id = ?`, [insertId]);
+    const results = rows as T[];
+    return results[0];
   }
 
   async update(id: number, data: Partial<Omit<T, 'id' | 'created_at'>>): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      const updates = Object.keys(data).map(key => `${key} = ?`).join(', ');
-      const values = [...Object.values(data), id];
+    const updates = Object.keys(data).map(key => `${key} = ?`).join(', ');
+    const values = [...Object.values(data), id];
 
-      const sql = `UPDATE ${this.tableName} SET ${updates}, updated_at = datetime('now') WHERE id = ?`;
+    const sql = `UPDATE ${this.tableName} SET ${updates}, updated_at = NOW() WHERE id = ?`;
 
-      db.run(sql, values, function(err) {
-        if (err) reject(err);
-        else resolve(this.changes > 0);
-      });
-    });
+    const [result] = await pool.execute(sql, values);
+    return (result as any).affectedRows > 0;
   }
 
   async delete(id: number): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      db.run(`UPDATE ${this.tableName} SET ativo = 0, updated_at = datetime('now') WHERE id = ?`, [id], function(err) {
-        if (err) reject(err);
-        else resolve(this.changes > 0);
-      });
-    });
+    const [result] = await pool.execute(`UPDATE ${this.tableName} SET ativo = 0, updated_at = NOW() WHERE id = ?`, [id]);
+    return (result as any).affectedRows > 0;
   }
 
   async hardDelete(id: number): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      db.run(`DELETE FROM ${this.tableName} WHERE id = ?`, [id], function(err) {
-        if (err) reject(err);
-        else resolve(this.changes > 0);
-      });
-    });
+    const [result] = await pool.execute(`DELETE FROM ${this.tableName} WHERE id = ?`, [id]);
+    return (result as any).affectedRows > 0;
   }
 }

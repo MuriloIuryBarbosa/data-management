@@ -1,82 +1,110 @@
-import sqlite3 from 'sqlite3';
-import path from 'path';
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
-const dbPath = path.join(__dirname, '../database.sqlite');
+// Load environment variables
+dotenv.config();
 
-export const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err.message);
-  } else {
-    console.log('Connected to SQLite database.');
-  }
-});
+// MySQL connection configuration
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'data_management',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
 
-export const initDatabase = () => {
-  db.serialize(() => {
-    db.run(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        name TEXT NOT NULL,
-        role TEXT DEFAULT 'user',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+// Create connection pool
+export const pool = mysql.createPool(dbConfig);
 
-    // Add role column if it doesn't exist (for existing databases)
-    db.run(`
-      ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'
-    `, (err) => {
-      if (err && !err.message.includes('duplicate column name')) {
-        console.error('Error adding role column:', err.message);
-      }
+// Test connection
+pool.getConnection()
+  .then(connection => {
+    console.log('Connected to MySQL database.');
+    connection.release();
+  })
+  .catch(err => {
+    console.error('Error connecting to MySQL database:', err.message);
+  });
+
+export const initDatabase = async () => {
+  try {
+    // Create database if it doesn't exist
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
     });
 
-    // Create Familia table
-    db.run(`
+    await connection.execute('CREATE DATABASE IF NOT EXISTS ??', [dbConfig.database]);
+    await connection.end();
+
+    // Create tables
+    const conn = await pool.getConnection();
+
+    // Users table
+    await conn.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Familia table
+    await conn.execute(`
       CREATE TABLE IF NOT EXISTS familia (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        codigo_old TEXT,
-        nome_old TEXT,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        codigo_old VARCHAR(50),
+        nome_old VARCHAR(255),
         legado TEXT,
-        nome TEXT NOT NULL,
+        nome VARCHAR(255) NOT NULL,
         descricao TEXT,
-        ativo INTEGER DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ativo TINYINT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
 
-    // Create Tamanho table
-    db.run(`
+    // Tamanho table
+    await conn.execute(`
       CREATE TABLE IF NOT EXISTS tamanho (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        codigo_old TEXT,
-        nome_old TEXT,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        codigo_old VARCHAR(50),
+        nome_old VARCHAR(255),
         legado TEXT,
-        nome TEXT NOT NULL,
-        sigla TEXT,
-        ordem INTEGER,
-        ativo INTEGER DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        nome VARCHAR(255) NOT NULL,
+        sigla VARCHAR(10),
+        ordem INT,
+        ativo TINYINT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
 
-    // Create Cor table
-    db.run(`
+    // Cor table
+    await conn.execute(`
       CREATE TABLE IF NOT EXISTS cor (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        codigo_old TEXT,
-        nome_old TEXT,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        codigo_old VARCHAR(50),
+        nome_old VARCHAR(255),
         legado TEXT,
-        nome TEXT NOT NULL,
-        codigo_hex TEXT,
-        ativo INTEGER DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        nome VARCHAR(255) NOT NULL,
+        codigo_hex VARCHAR(7),
+        ativo TINYINT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-  });
+
+    conn.release();
+    console.log('Database tables initialized successfully.');
+  } catch (error) {
+    console.error('Error initializing database:', error);
+  }
 };

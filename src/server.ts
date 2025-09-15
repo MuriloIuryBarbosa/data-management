@@ -18,15 +18,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Initialize database
-initDatabase();
+(async () => {
+  await initDatabase();
+})();
 
 // Routes
 app.use('/', authRoutes);
 app.use('/', mainRoutes);
 app.use('/', logoutRoutes);
+app.use('/cadastros', cadastrosRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.listen(PORT, () => {
-  
+  console.log(`Server running on port ${PORT}`);
+});
