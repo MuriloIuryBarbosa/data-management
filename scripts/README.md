@@ -51,6 +51,19 @@ Esta pasta contém os scripts Python desenvolvidos para processar os arquivos de
 
 - `mysql.connector` - Para conexão com MySQL
 - `pathlib` - Para manipulação de caminhos de arquivo
+- `Git LFS` - Para versionamento de arquivos SQL grandes (>100MB)
+
+### Configuração do Git LFS
+```bash
+# Instalar Git LFS
+git lfs install
+
+# Configurar rastreamento de arquivos SQL
+git lfs track "*.sql"
+
+# Adicionar .gitattributes ao repositório
+git add .gitattributes
+```
 
 ## Estrutura dos Dados
 
