@@ -67,3 +67,6 @@ Thumbs.db
 # Database files
 *.sqlite
 *.db
+
+# Database export files (managed by Git LFS)
+# scripts/sql_exports/
