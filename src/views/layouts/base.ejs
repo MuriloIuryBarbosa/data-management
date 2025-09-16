@@ -602,6 +602,12 @@
                             Ordem de Compra
                         </a>
                     </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'purchase-order' ? 'active' : '' %>" href="/planejamento/purchase-order">
+                            <i class="fas fa-file-contract"></i>
+                            Purchase Order
+                        </a>
+                    </li>
                 </div>
 
                 <!-- Executivo Menu -->
@@ -748,7 +754,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const currentPage = '<%= typeof currentPage !== "undefined" ? currentPage : "" %>';
             const cadastrosPages = ['familia', 'tamanho', 'cor'];
-            const planejamentoPages = ['ordem-compra'];
+            const planejamentoPages = ['ordem-compra', 'purchase-order'];
             const executivoPages = ['analise-estoque'];
 
             // Cadastros menu

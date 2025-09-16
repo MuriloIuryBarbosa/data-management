@@ -1,0 +1,569 @@
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-eye text-primary me-2"></i>
+                Ordem de Compra #<%= ordemCompra.id %>
+            </h1>
+            <p class="text-muted mb-0">Detalhes da ordem de compra</p>
+        </div>
+        <div>
+            <% if (ordemCompra.status === 'planejado') { %>
+                <button type="button" class="btn btn-success-custom me-2" onclick="aprovarOrdemCompra()">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Aprovar para Purchase Order
+                </button>
+            <% } %>
+            <% if (ordemCompra.status === 'aprovado') { %>
+                <a href="/planejamento/purchase-order/<%= ordemCompra.id %>" class="btn btn-info-custom me-2">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Ver Purchase Order
+                </a>
+            <% } %>
+            <a href="/planejamento/ordem-compra/<%= ordemCompra.id %>/editar" class="btn btn-primary-custom me-2">
+                <i class="fas fa-edit me-2"></i>
+                Editar
+            </a>
+            <a href="/planejamento/ordem-compra/<%= ordemCompra.id %>/historico" class="btn btn-info-custom me-2">
+                <i class="fas fa-history me-2"></i>
+                Histórico
+            </a>
+            <a href="/planejamento/ordem-compra" class="btn btn-secondary-custom">
+                <i class="fas fa-arrow-left me-2"></i>
+                Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <!-- Informações Gerais da OC -->
+            <div class="card-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Informações Gerais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Número da OC:</strong><br>
+                            <%= ordemCompra.numero_oc || 'Não informado' %>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Fornecedor:</strong><br>
+                            <%= ordemCompra.fornecedor || 'Não informado' %>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Data de Emissão:</strong><br>
+                            <%= ordemCompra.data_emissao ? new Date(ordemCompra.data_emissao).toLocaleDateString('pt-BR') : 'Não informada' %>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Data de Entrega Prevista:</strong><br>
+                            <%= ordemCompra.data_entrega_prevista ? new Date(ordemCompra.data_entrega_prevista).toLocaleDateString('pt-BR') : 'Não informada' %>
+                        </div>
+                    </div>
+                    <% if (ordemCompra.observacoes) { %>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <strong>Observações:</strong><br>
+                                <p class="text-muted mb-0"><%= ordemCompra.observacoes %></p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Itens da Ordem de Compra -->
+            <div class="card-custom mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list text-primary me-2"></i>
+                        Itens da Ordem de Compra
+                    </h5>
+                    <span class="badge bg-primary"><%= (ordemCompra.itens || []).length %> item(s)</span>
+                </div>
+                <div class="card-body">
+                    <% if (!ordemCompra.itens || ordemCompra.itens.length === 0) { %>
+                        <!-- Compatibilidade com estrutura antiga -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-users me-1"></i>
+                                    Família
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    <%= typeof familia !== 'undefined' && familia ? familia.nome : 'N/A' %>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-expand me-1"></i>
+                                    Tamanho
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    <%= typeof tamanho !== 'undefined' && tamanho ? (tamanho.sigla || tamanho.nome) : 'N/A' %>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-palette me-1"></i>
+                                    Cor
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    <%= typeof cor !== 'undefined' && cor ? cor.nome : 'N/A' %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-barcode me-1"></i>
+                                    SKU
+                                </label>
+                                <div class="form-control-custom bg-light font-monospace">
+                                    <%= ordemCompra.sku || 'N/A' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-weight me-1"></i>
+                                    Status
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    <% if (ordemCompra.status === 'planejado') { %>
+                                        <span class="badge bg-info">Planejado</span>
+                                    <% } else if (ordemCompra.status === 'aprovado') { %>
+                                        <span class="badge bg-success">Aprovado</span>
+                                    <% } else if (ordemCompra.status === 'em_transito') { %>
+                                        <span class="badge bg-warning">Em Trânsito</span>
+                                    <% } else if (ordemCompra.status === 'recebido') { %>
+                                        <span class="badge bg-primary">Recebido</span>
+                                    <% } else if (ordemCompra.status === 'cancelado') { %>
+                                        <span class="badge bg-danger">Cancelado</span>
+                                    <% } else { %>
+                                        <span class="badge bg-secondary"><%= ordemCompra.status %></span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-hashtag me-1"></i>
+                                    Quantidade
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    <%= ordemCompra.quantidade || 0 %> <%= ordemCompra.unidade_medida || 'un' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    Valor Total
+                                </label>
+                                <div class="form-control-custom bg-light">
+                                    R$ <%= (ordemCompra.valor_compra_brl || 0).toFixed(2) %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (ordemCompra.etd_planejado) { %>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        ETD Planejado
+                                    </label>
+                                    <div class="form-control-custom bg-light">
+                                        <%= new Date(ordemCompra.etd_planejado).toLocaleDateString('pt-BR') %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <!-- Nova estrutura: múltiplos itens -->
+                        <% ordemCompra.itens.forEach((item, index) => { %>
+                            <div class="item-card card mb-3 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-box me-2"></i>
+                                        Item <%= index + 1 %> - <%= item.familia_nome %> <%= item.tamanho_nome %> <%= item.cor_nome %>
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <strong>Família:</strong><br>
+                                            <%= item.familia_nome %>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Tamanho:</strong><br>
+                                            <%= item.tamanho_nome %>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Cor:</strong><br>
+                                            <%= item.cor_nome %>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>SKU:</strong><br>
+                                            <code><%= item.sku %></code>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <strong>Quantidade:</strong><br>
+                                            <%= item.quantidade %> <%= item.unidade_medida %>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Valor Unitário:</strong><br>
+                                            R$ <%= Number(item.valor_unitario_brl || 0).toFixed(2) %>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Valor Total:</strong><br>
+                                            <span class="fw-bold text-success">R$ <%= Number(item.valor_total_brl || 0).toFixed(2) %></span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Status:</strong><br>
+                                            <% if (item.status === 'pendente') { %>
+                                                <span class="badge bg-warning">Pendente</span>
+                                            <% } else if (item.status === 'aprovado') { %>
+                                                <span class="badge bg-success">Aprovado</span>
+                                            <% } else if (item.status === 'em_transito') { %>
+                                                <span class="badge bg-info">Em Trânsito</span>
+                                            <% } else if (item.status === 'recebido') { %>
+                                                <span class="badge bg-primary">Recebido</span>
+                                            <% } else if (item.status === 'cancelado') { %>
+                                                <span class="badge bg-danger">Cancelado</span>
+                                            <% } else { %>
+                                                <span class="badge bg-secondary"><%= item.status %></span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+
+                                    <% if (item.etd_planejado) { %>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>ETD Planejado:</strong><br>
+                                                <%= new Date(item.etd_planejado).toLocaleDateString('pt-BR') %>
+                                            </div>
+                                            <% if (item.cotacao_dolar) { %>
+                                                <div class="col-md-6">
+                                                    <strong>Cotação Dólar:</strong><br>
+                                                    $ <%= Number(item.cotacao_dolar).toFixed(2) %>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }); %>
+
+                        <!-- Resumo da OC -->
+                        <div class="card bg-light mt-4">
+                            <div class="card-body">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Resumo da Ordem de Compra
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Total de Itens:</strong>
+                                        <span class="badge bg-primary ms-2"><%= ordemCompra.total_itens || ordemCompra.itens.length %></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Valor Total R$:</strong>
+                                        <span class="text-success fw-bold ms-2">R$ <%= Number(ordemCompra.valor_total_brl || 0).toFixed(2) %></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Valor Total USD:</strong>
+                                        <span class="text-success fw-bold ms-2">$ <%= Number(ordemCompra.valor_total_usd || 0).toFixed(2) %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Status e Datas -->
+            <div class="card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Status e Informações
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Status da OC:</strong><br>
+                            <% if (ordemCompra.status === 'rascunho') { %>
+                                <span class="badge bg-secondary">Rascunho</span>
+                            <% } else if (ordemCompra.status === 'emitida') { %>
+                                <span class="badge bg-info">Emitida</span>
+                            <% } else if (ordemCompra.status === 'aprovada') { %>
+                                <span class="badge bg-success">Aprovada</span>
+                            <% } else if (ordemCompra.status === 'em_transito') { %>
+                                <span class="badge bg-warning">Em Trânsito</span>
+                            <% } else if (ordemCompra.status === 'recebida') { %>
+                                <span class="badge bg-primary">Recebida</span>
+                            <% } else if (ordemCompra.status === 'cancelada') { %>
+                                <span class="badge bg-danger">Cancelada</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary"><%= ordemCompra.status %></span>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Data de Criação:</strong><br>
+                            <%= new Date(ordemCompra.created_at).toLocaleString('pt-BR') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.item-card {
+    transition: all 0.3s ease;
+}
+
+.item-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">
+                                <i class="fas fa-barcode me-1"></i>
+                                SKU
+                            </label>
+                            <div class="form-control-custom bg-light font-monospace">
+                                <%= ordemCompra.sku %>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">
+                                <i class="fas fa-weight me-1"></i>
+                                Status
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <% if (ordemCompra.status === 'planejado') { %>
+                                    <span class="badge bg-info">Planejado</span>
+                                <% } else if (ordemCompra.status === 'aprovado') { %>
+                                    <span class="badge bg-success">Aprovado</span>
+                                <% } else if (ordemCompra.status === 'em_transito') { %>
+                                    <span class="badge bg-warning">Em Trânsito</span>
+                                <% } else if (ordemCompra.status === 'recebido') { %>
+                                    <span class="badge bg-primary">Recebido</span>
+                                <% } else if (ordemCompra.status === 'cancelado') { %>
+                                    <span class="badge bg-danger">Cancelado</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary"><%= ordemCompra.status %></span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantidade e Valores -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-calculator me-2"></i>
+                                Quantidade e Valores
+                            </h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-hashtag me-1"></i>
+                                Quantidade
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <%= ordemCompra.quantidade %> <%= ordemCompra.unidade_medida %>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                Valor BRL
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                R$ <%= (ordemCompra.valor_compra_brl || 0).toFixed(2) %>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                Cotação USD
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <%= (ordemCompra.cotacao_dolar || 0).toFixed(4) %>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                Valor USD
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                US$ <%= (ordemCompra.valor_compra_usd || 0).toFixed(2) %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datas -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Datas
+                            </h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label-custom">
+                                <i class="fas fa-calendar-plus me-1"></i>
+                                ETD Planejado
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <%= new Date(ordemCompra.etd_planejado).toLocaleDateString('pt-BR') %>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-custom">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                ETD Proposto
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <%= ordemCompra.etd_proposto ? new Date(ordemCompra.etd_proposto).toLocaleDateString('pt-BR') : 'Não informado' %>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-custom">
+                                <i class="fas fa-calendar-day me-1"></i>
+                                ETD Real
+                            </label>
+                            <div class="form-control-custom bg-light">
+                                <%= ordemCompra.etd_real ? new Date(ordemCompra.etd_real).toLocaleDateString('pt-BR') : 'Não informado' %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Informações do Sistema -->
+            <div class="card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Informações do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <small class="text-muted">ID da Ordem</small>
+                            <div class="fw-bold">#<%= ordemCompra.id %></div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <small class="text-muted">Data de Criação</small>
+                            <div class="fw-bold"><%= new Date(ordemCompra.created_at).toLocaleString('pt-BR') %></div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <small class="text-muted">Última Atualização</small>
+                            <div class="fw-bold"><%= new Date(ordemCompra.updated_at).toLocaleString('pt-BR') %></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card-custom mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-primary me-2"></i>
+                        Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/planejamento/ordem-compra/<%= ordemCompra.id %>/editar" class="btn btn-primary-custom">
+                            <i class="fas fa-edit me-2"></i>
+                            Editar Ordem
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" onclick="confirmarExclusao()">
+                            <i class="fas fa-trash me-2"></i>
+                            Excluir Ordem
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarExclusao() {
+    if (confirm('Tem certeza que deseja excluir esta ordem de compra? Esta ação não pode ser desfeita.')) {
+        // Implementar exclusão se necessário
+        alert('Funcionalidade de exclusão será implementada em breve.');
+    }
+}
+
+function aprovarOrdemCompra() {
+    console.log('Função aprovarOrdemCompra chamada');
+    if (confirm('Tem certeza que deseja aprovar esta ordem de compra?\n\nEla será movida para o fluxo de Purchase Order e não poderá mais ser editada como uma ordem de compra comum.')) {
+        console.log('Confirmação aceita, fazendo fetch...');
+        // Enviar requisição POST para aprovar
+        fetch('/planejamento/ordem-compra/<%= ordemCompra.id %>/approve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'  // Incluir cookies de autenticação
+        })
+        .then(response => {
+            console.log('Resposta recebida:', response.status, response.statusText);
+            if (response.status === 401) {
+                alert('Sessão expirada. Faça login novamente.');
+                window.location.href = '/login';
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados da resposta:', data);
+            if (data && data.success) {
+                alert('Ordem de compra aprovada com sucesso! Redirecionando para Purchase Order...');
+                window.location.href = data.redirectUrl || '/planejamento/purchase-order/<%= ordemCompra.id %>';
+            } else if (data) {
+                alert('Erro ao aprovar ordem de compra: ' + (data.error || 'Erro desconhecido'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+            alert('Erro ao aprovar ordem de compra. Tente novamente.');
+        });
+    } else {
+        console.log('Confirmação cancelada');
+    }
+}
+</script>

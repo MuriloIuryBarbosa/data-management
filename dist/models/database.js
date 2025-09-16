@@ -181,6 +181,30 @@ const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+        // Ordem Compra table
+        await conn.execute(`
+      CREATE TABLE IF NOT EXISTS ordem_compra (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        familia_id INT,
+        tamanho_id INT,
+        cor_id INT,
+        sku VARCHAR(100),
+        quantidade DECIMAL(10,2),
+        unidade_medida VARCHAR(50),
+        valor_compra_brl DECIMAL(10,2),
+        cotacao_dolar DECIMAL(10,4),
+        valor_compra_usd DECIMAL(10,2),
+        etd_planejado DATE,
+        etd_proposto DATE,
+        etd_real DATE,
+        status VARCHAR(50) DEFAULT 'planejado',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (familia_id) REFERENCES familia(id),
+        FOREIGN KEY (tamanho_id) REFERENCES tamanho(id),
+        FOREIGN KEY (cor_id) REFERENCES cor(id)
+      )
+    `);
         conn.release();
         console.log('Database tables initialized successfully.');
     }
