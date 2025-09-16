@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../controllers/mainController';
-import { getOrdemCompra } from '../controllers/planejamentoController';
+import { getOrdemCompra, getNovoOrdemCompra, createOrdemCompra } from '../controllers/planejamentoController';
 
 const router = express.Router();
 
@@ -9,5 +9,7 @@ router.use(authenticateToken);
 
 // Rota para Ordem de Compra
 router.get('/ordem-compra', getOrdemCompra);
+router.get('/ordem-compra/novo', getNovoOrdemCompra);
+router.post('/ordem-compra', createOrdemCompra);
 
 export default router;

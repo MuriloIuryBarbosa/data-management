@@ -1,0 +1,121 @@
+<div class="container mt-4">
+  <h1><%= title %></h1>
+
+  <form action="/planejamento/ordem-compra" method="POST">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="familia_id" class="form-label">Família</label>
+          <select class="form-select" id="familia_id" name="familia_id" required>
+            <option value="">Selecione uma família</option>
+            <% familias.forEach(familia => { %>
+              <option value="<%= familia.id %>"><%= familia.nome %></option>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="tamanho_id" class="form-label">Tamanho</label>
+          <select class="form-select" id="tamanho_id" name="tamanho_id" required>
+            <option value="">Selecione um tamanho</option>
+            <% tamanhos.forEach(tamanho => { %>
+              <option value="<%= tamanho.id %>"><%= tamanho.nome %> (<%= tamanho.sigla %>)</option>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="cor_id" class="form-label">Cor</label>
+          <select class="form-select" id="cor_id" name="cor_id" required>
+            <option value="">Selecione uma cor</option>
+            <% cores.forEach(cor => { %>
+              <option value="<%= cor.id %>"><%= cor.nome %></option>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="quantidade" class="form-label">Quantidade</label>
+          <input type="number" step="0.01" class="form-control" id="quantidade" name="quantidade" required>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="unidade_medida" class="form-label">Unidade de Medida</label>
+          <select class="form-select" id="unidade_medida" name="unidade_medida" required>
+            <option value="">Selecione</option>
+            <option value="Metro">Metro</option>
+            <option value="Quilograma">Quilograma</option>
+            <option value="Unidade">Unidade</option>
+            <option value="Peça">Peça</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="valor_compra_brl" class="form-label">Valor de Compra (R$)</label>
+          <input type="number" step="0.01" class="form-control" id="valor_compra_brl" name="valor_compra_brl" required>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="cotacao_dolar" class="form-label">Cotação do Dólar</label>
+          <input type="number" step="0.0001" class="form-control" id="cotacao_dolar" name="cotacao_dolar" required placeholder="Ex: 5.00">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="etd_planejado" class="form-label">ETD Planejado</label>
+          <input type="date" class="form-control" id="etd_planejado" name="etd_planejado" required>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="etd_proposto" class="form-label">ETD Proposto</label>
+          <input type="date" class="form-control" id="etd_proposto" name="etd_proposto">
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="etd_real" class="form-label">ETD Real</label>
+          <input type="date" class="form-control" id="etd_real" name="etd_real">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Criar Ordem de Compra</button>
+    <a href="/planejamento/ordem-compra" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+
+<script>
+  // Optional: Auto-generate SKU preview
+  function updateSKU() {
+    const familia = document.getElementById('familia_id').selectedOptions[0]?.text.split(' ')[0] || '';
+    const tamanho = document.getElementById('tamanho_id').selectedOptions[0]?.text.split(' ')[0] || '';
+    const cor = document.getElementById('cor_id').selectedOptions[0]?.text.split(' ')[0] || '';
+    // Could add a preview, but for now, it's composed on server
+  }
+
+  document.getElementById('familia_id').addEventListener('change', updateSKU);
+  document.getElementById('tamanho_id').addEventListener('change', updateSKU);
+  document.getElementById('cor_id').addEventListener('change', updateSKU);
+</script>

@@ -1,0 +1,52 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= title %></h1>
+    <a href="/planejamento/ordem-compra/novo" class="btn btn-primary">Nova Ordem de Compra</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>SKU</th>
+          <th>Família</th>
+          <th>Tamanho</th>
+          <th>Cor</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
+          <th>Valor BRL</th>
+          <th>Valor USD</th>
+          <th>ETD Planejado</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% ordensCompra.forEach(ordem => { %>
+          <tr>
+            <td><%= ordem.id %></td>
+            <td><%= ordem.sku %></td>
+            <td><%= ordem.familia_nome %></td>
+            <td><%= ordem.tamanho_nome %></td>
+            <td><%= ordem.cor_nome %></td>
+            <td><%= ordem.quantidade %></td>
+            <td><%= ordem.unidade_medida %></td>
+            <td>R$ <%= ordem.valor_compra_brl %></td>
+            <td>$ <%= ordem.valor_compra_usd %></td>
+            <td><%= new Date(ordem.etd_planejado).toLocaleDateString('pt-BR') %></td>
+            <td><%= ordem.status %></td>
+            <td>
+              <button class="btn btn-sm btn-info">Editar</button>
+              <button class="btn btn-sm btn-danger">Excluir</button>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (ordensCompra.length === 0) { %>
+    <p class="text-center">Nenhuma ordem de compra encontrada.</p>
+  <% } %>
+</div>
