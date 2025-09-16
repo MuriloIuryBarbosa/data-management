@@ -1,71 +1,120 @@
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h4><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-8">
-            <h1>Bem-vindo ao Sistema de Gestão de Dados</h1>
-            <p class="lead">Gerencie seus cadastros de forma eficiente e organizada.</p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Gerenciamento de Dados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../layouts/partials/header') %>
 
-            <div class="row mt-4">
-              <div class="col-md-4">
-                <div class="card bg-primary text-white">
-                  <div class="card-body text-center">
-                    <i class="fas fa-users fa-2x mb-2"></i>
-                    <h5>Família</h5>
-                    <p>Gerencie famílias</p>
-                    <a href="/cadastros/familia" class="btn btn-light btn-sm">Acessar</a>
-                  </div>
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-tachometer-alt text-primary-custom me-2"></i>
+                        Dashboard
+                    </h1>
+                    <p class="page-subtitle">Bem-vindo ao Sistema de Gestão de Dados</p>
                 </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="card bg-success text-white">
-                  <div class="card-body text-center">
-                    <i class="fas fa-expand fa-2x mb-2"></i>
-                    <h5>Tamanho</h5>
-                    <p>Gerencie tamanhos</p>
-                    <a href="/cadastros/tamanho" class="btn btn-light btn-sm">Acessar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="card bg-info text-white">
-                  <div class="card-body text-center">
-                    <i class="fas fa-palette fa-2x mb-2"></i>
-                    <h5>Cor</h5>
-                    <p>Gerencie cores</p>
-                    <a href="/cadastros/cor" class="btn btn-light btn-sm">Acessar</a>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-header">
-                <h5><i class="fas fa-user me-2"></i>Informações do Usuário</h5>
-              </div>
-              <div class="card-body">
-                <p><strong>Nome:</strong> <%= typeof user !== 'undefined' ? user.name : 'N/A' %></p>
-                <p><strong>Email:</strong> <%= typeof user !== 'undefined' ? user.email : 'N/A' %></p>
-                <p><strong>Papel:</strong>
-                  <% if (typeof user !== 'undefined' && user.role === 'admin') { %>
-                    <span class="badge bg-danger">Administrador</span>
-                  <% } else { %>
-                    <span class="badge bg-primary">Usuário</span>
-                  <% } %>
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-home me-2"></i>Visão Geral do Sistema</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h2>Bem-vindo ao Sistema de Gestão de Dados</h2>
+                                <p class="lead">Gerencie seus cadastros de forma eficiente e organizada.</p>
+
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="card bg-primary-gradient text-white dashboard-card">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-users card-icon"></i>
+                                                <h5>Família</h5>
+                                                <p>Gerencie famílias de produtos</p>
+                                                <a href="/cadastros/familias" class="btn btn-light btn-sm">Acessar</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="card bg-success-gradient text-white dashboard-card">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-expand card-icon"></i>
+                                                <h5>Tamanho</h5>
+                                                <p>Gerencie tamanhos de produtos</p>
+                                                <a href="/cadastros/tamanhos" class="btn btn-light btn-sm">Acessar</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="card bg-warning-gradient text-white dashboard-card">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-palette card-icon"></i>
+                                                <h5>Cor</h5>
+                                                <p>Gerencie cores de produtos</p>
+                                                <a href="/cadastros/cores" class="btn btn-light btn-sm">Acessar</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-user me-2"></i>Informações do Usuário</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Nome:</strong> <%= typeof user !== 'undefined' ? user.name : 'N/A' %></p>
+                                        <p><strong>Email:</strong> <%= typeof user !== 'undefined' ? user.email : 'N/A' %></p>
+                                        <p><strong>Papel:</strong>
+                                            <% if (typeof user !== 'undefined' && user.role === 'admin') { %>
+                                                <span class="badge bg-danger">Administrador</span>
+                                            <% } else { %>
+                                                <span class="badge bg-primary">Usuário</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-chart-bar me-2"></i>Acesso Rápido</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-grid gap-2">
+                                            <a href="/planejamento/ordem-compra" class="btn btn-outline-primary">
+                                                <i class="fas fa-shopping-cart me-2"></i>Ordens de Compra
+                                            </a>
+                                            <a href="/executivo/analise-estoque" class="btn btn-outline-success">
+                                                <i class="fas fa-chart-line me-2"></i>Análise de Estoque
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+
+    <%- include('../layouts/partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

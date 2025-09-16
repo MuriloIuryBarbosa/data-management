@@ -1,144 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Sistema de Gerenciamento de Dados</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Sistema de Gerenciamento de Dados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand" href="/">
-        <i class="fas fa-database"></i> Sistema de Gerenciamento
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="/"><i class="fas fa-home"></i> Dashboard</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="cadastrosDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-plus-circle"></i> Cadastros
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/cadastros/familias"><i class="fas fa-sitemap"></i> Famílias</a></li>
-              <li><a class="dropdown-item" href="/cadastros/tamanhos"><i class="fas fa-expand"></i> Tamanhos</a></li>
-              <li><a class="dropdown-item" href="/cadastros/cores"><i class="fas fa-palette"></i> Cores</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle active" href="#" id="planejamentoDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-calendar-alt"></i> Planejamento
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item active" href="/planejamento/ordem-compra"><i class="fas fa-shopping-cart"></i> Ordem de Compra</a></li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-user"></i> <%= typeof user !== 'undefined' ? user.email : 'Usuário' %>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+    <%- include('../../layouts/partials/header') %>
 
-  <div class="container mt-4">
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <h1><i class="fas fa-shopping-cart"></i> <%= title %></h1>
-          <a href="/planejamento/ordem-compra/novo" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nova Ordem de Compra
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                  <tr>
-                    <th>ID</th>
-                    <th>SKU</th>
-                    <th>Família</th>
-                    <th>Tamanho</th>
-                    <th>Cor</th>
-                    <th>Status</th>
-                    <th>Valor (BRL)</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% ordensCompra.forEach(ordem => { %>
-                    <tr>
-                      <td><%= ordem.id %></td>
-                      <td>
-                        <code><%= ordem.sku %></code>
-                      </td>
-                      <td><%= ordem.familia_nome %></td>
-                      <td><%= ordem.tamanho_nome %></td>
-                      <td><%= ordem.cor_nome %></td>
-                      <td>
-                        <% if (ordem.status === 'planejado') { %>
-                          <span class="badge bg-info">Planejado</span>
-                        <% } else if (ordem.status === 'aprovado') { %>
-                          <span class="badge bg-success">Aprovado</span>
-                        <% } else if (ordem.status === 'em_transito') { %>
-                          <span class="badge bg-warning">Em Trânsito</span>
-                        <% } else if (ordem.status === 'recebido') { %>
-                          <span class="badge bg-primary">Recebido</span>
-                        <% } else if (ordem.status === 'cancelado') { %>
-                          <span class="badge bg-danger">Cancelado</span>
-                        <% } else { %>
-                          <span class="badge bg-secondary"><%= ordem.status %></span>
-                        <% } %>
-                      </td>
-                      <td>R$ <%= (ordem.valor_compra_brl || 0).toFixed(2) %></td>
-                      <td>
-                        <a href="/planejamento/ordem-compra/<%= ordem.id %>" class="btn btn-sm btn-outline-primary" title="Visualizar">
-                          <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="/planejamento/ordem-compra/<%= ordem.id %>/editar" class="btn btn-sm btn-outline-secondary ms-1" title="Editar">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="/planejamento/ordem-compra/<%= ordem.id %>/historico" class="btn btn-sm btn-outline-info ms-1" title="Histórico">
-                          <i class="fas fa-history"></i>
-                        </a>
-                      </td>
-                    </tr>
-                  <% }) %>
-                  <% if (ordensCompra.length === 0) { %>
-                    <tr>
-                      <td colspan="8" class="text-center text-muted">
-                        <i class="fas fa-info-circle"></i> Nenhuma ordem de compra cadastrada ainda.
-                      </td>
-                    </tr>
-                  <% } %>
-                </tbody>
-              </table>
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-shopping-cart text-primary-custom me-2"></i>
+                        <%= title %>
+                    </h1>
+                    <p class="page-subtitle">Gerencie as ordens de compra do sistema</p>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div></div>
+                    <a href="/planejamento/ordem-compra/novo" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nova Ordem de Compra
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list me-2"></i>Ordens de Compra Cadastradas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>SKU</th>
+                                        <th>Família</th>
+                                        <th>Tamanho</th>
+                                        <th>Cor</th>
+                                        <th>Status</th>
+                                        <th>Valor (BRL)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% ordensCompra.forEach(ordem => { %>
+                                        <tr>
+                                            <td><%= ordem.id %></td>
+                                            <td>
+                                                <code><%= ordem.sku %></code>
+                                            </td>
+                                            <td><%= ordem.familia_nome %></td>
+                                            <td><%= ordem.tamanho_nome %></td>
+                                            <td><%= ordem.cor_nome %></td>
+                                            <td>
+                                                <% if (ordem.status === 'planejado') { %>
+                                                    <span class="badge bg-info">Planejado</span>
+                                                <% } else if (ordem.status === 'aprovado') { %>
+                                                    <span class="badge bg-success">Aprovado</span>
+                                                <% } else if (ordem.status === 'em_transito') { %>
+                                                    <span class="badge bg-warning">Em Trânsito</span>
+                                                <% } else if (ordem.status === 'recebido') { %>
+                                                    <span class="badge bg-primary">Recebido</span>
+                                                <% } else if (ordem.status === 'cancelado') { %>
+                                                    <span class="badge bg-danger">Cancelado</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary"><%= ordem.status %></span>
+                                                <% } %>
+                                            </td>
+                                            <td>R$ <%= (ordem.valor_compra_brl || 0).toFixed(2) %></td>
+                                            <td>
+                                                <a href="/planejamento/ordem-compra/<%= ordem.id %>" class="btn btn-sm btn-outline-primary me-1" title="Visualizar">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/planejamento/ordem-compra/<%= ordem.id %>/editar" class="btn btn-sm btn-outline-secondary me-1" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/planejamento/ordem-compra/<%= ordem.id %>/historico" class="btn btn-sm btn-outline-info" title="Histórico">
+                                                    <i class="fas fa-history"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                    <% if (ordensCompra.length === 0) { %>
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                                <br>Nenhuma ordem de compra cadastrada ainda.
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../layouts/partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

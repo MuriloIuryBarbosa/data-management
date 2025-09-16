@@ -1,11 +1,14 @@
 import express from 'express';
 import { authenticateToken } from '../controllers/mainController';
-import { getOrdemCompra, getNovoOrdemCompra, createOrdemCompra, getVerOrdemCompra, getEditarOrdemCompra, updateOrdemCompra, getHistoricoOrdemCompra, approveOrdemCompra, deleteOrdemCompra, getPurchaseOrder, getVerPurchaseOrder, updatePurchaseOrderStatus } from '../controllers/planejamentoController';
+import { getOrdemCompra, getNovoOrdemCompra, createOrdemCompra, getVerOrdemCompra, getEditarOrdemCompra, updateOrdemCompra, getHistoricoOrdemCompra, approveOrdemCompra, deleteOrdemCompra, getPurchaseOrder, getVerPurchaseOrder, updatePurchaseOrderStatus, getDashboard } from '../controllers/planejamentoController';
 
 const router = express.Router();
 
 // Aplicar middleware de autenticação a todas as rotas de planejamento
 router.use(authenticateToken);
+
+// Rota para Dashboard
+router.get('/dashboard', getDashboard);
 
 // Rota para Ordem de Compra
 router.get('/ordem-compra', getOrdemCompra);

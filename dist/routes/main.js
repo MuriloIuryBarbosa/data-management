@@ -12,4 +12,8 @@ router.get('/', mainController_1.authenticateToken, mainController_1.getDashboar
 router.get('/teste-minimo', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../teste-minimo.html'));
 });
+// Rota de teste de login
+router.get('/login-test', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../../login-test.html'));
+});
 exports.default = router;

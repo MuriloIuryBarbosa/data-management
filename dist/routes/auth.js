@@ -12,4 +12,13 @@ router.get('/register', authController_1.getRegister);
 router.post('/register', authController_1.postRegister);
 router.get('/forgot-password', authController_1.getForgotPassword);
 router.post('/forgot-password', authController_1.postForgotPassword);
+// Rota de debug para verificar cookies
+router.get('/debug-auth', (req, res) => {
+    res.json({
+        cookies: req.cookies,
+        headers: req.headers,
+        hasToken: !!req.cookies.token,
+        userAgent: req.get('User-Agent')
+    });
+});
 exports.default = router;

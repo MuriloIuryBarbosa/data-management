@@ -4,6 +4,7 @@ import { tamanhoModel } from '../models/tamanho';
 import { corModel } from '../models/cor';
 import { ordemCompraModel } from '../models/ordemCompra';
 import { OrdemCompraHistoricoModel } from '../models/ordemCompraHistorico';
+import { pool } from '../models/database';
 
 // Planejamento Controllers
 export const getOrdemCompra = async (req: Request, res: Response) => {
@@ -772,5 +773,140 @@ export const deleteOrdemCompra = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao excluir ordem de compra:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+// Dashboard Controller
+export const getDashboard = async (req: Request, res: Response) => {
+  try {
+    console.log('📊 Carregando dashboard de planejamento...');
+
+    const conn = await pool.getConnection();
+
+    try {
+      // 1. Dados gerais de faturamento
+      const [faturamentoGeral] = await conn.execute(`
+        SELECT
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_total,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_total,
+          COUNT(*) as total_registros
+        FROM tab_dados_faturamento
+        WHERE INDICADOR = 'Faturamento'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+      `);
+
+      // 2. Dados por empresa
+      const [faturamentoPorEmpresa] = await conn.execute(`
+        SELECT
+          Empresa,
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_total,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_total,
+          COUNT(*) as total_registros
+        FROM tab_dados_faturamento
+        WHERE INDICADOR = 'Faturamento'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+        GROUP BY Empresa
+        ORDER BY valor_total DESC
+      `);
+
+      // 3. Dados por mês (últimos 12 meses)
+      const [faturamentoPorMes] = await conn.execute(`
+        SELECT
+          CONCAT(Ano, '-', LPAD(Mes, 2, '0')) as periodo,
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_total,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_total,
+          COUNT(*) as total_registros
+        FROM tab_dados_faturamento
+        WHERE INDICADOR = 'Faturamento'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+          AND Ano IS NOT NULL
+          AND Mes IS NOT NULL
+        GROUP BY Ano, Mes
+        ORDER BY Ano DESC, Mes DESC
+        LIMIT 12
+      `);
+
+      // 4. Top famílias por faturamento
+      const [topFamilias] = await conn.execute(`
+        SELECT
+          \`Codigo Familia\` as familia,
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_total,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_total
+        FROM tab_dados_faturamento
+        WHERE INDICADOR = 'Faturamento'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+          AND \`Codigo Familia\` IS NOT NULL
+          AND \`Codigo Familia\` != ''
+        GROUP BY \`Codigo Familia\`
+        ORDER BY valor_total DESC
+        LIMIT 10
+      `);
+
+      // 5. Dados de estoque atual
+      const [estoqueAtual] = await conn.execute(`
+        SELECT
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_estoque,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_estoque,
+          COUNT(*) as total_itens_estoque
+        FROM tab_dados_estoque
+        WHERE INDICADOR = 'Estoque'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+      `);
+
+      // 6. Dados de business plan
+      const [businessPlan] = await conn.execute(`
+        SELECT
+          SUM(CAST(VALOR AS DECIMAL(15,2))) as valor_planejado,
+          SUM(CAST(QTDE AS DECIMAL(15,2))) as quantidade_planejada,
+          COUNT(*) as total_itens_planejados
+        FROM tab_dados_business_plan
+        WHERE INDICADOR = 'Business Plan'
+          AND VALOR IS NOT NULL
+          AND QTDE IS NOT NULL
+          AND VALOR != ''
+          AND QTDE != ''
+      `);
+
+      const dashboardData = {
+        faturamentoGeral: (faturamentoGeral as any)[0],
+        faturamentoPorEmpresa: faturamentoPorEmpresa as any,
+        faturamentoPorMes: (faturamentoPorMes as any).reverse(), // Inverter para mostrar do mais antigo para o mais recente
+        topFamilias: topFamilias as any,
+        estoqueAtual: (estoqueAtual as any)[0],
+        businessPlan: (businessPlan as any)[0]
+      };
+
+      console.log('✅ Dashboard carregado com sucesso');
+
+      res.render('planejamento/dashboard/index', {
+        dashboardData,
+        title: 'Dashboard de Planejamento',
+        currentPage: 'dashboard',
+        layout: 'layouts/base',
+        user: (req as any).user
+      });
+
+    } finally {
+      conn.release();
+    }
+
+  } catch (error) {
+    console.error('❌ Erro ao carregar dashboard:', error);
+    res.status(500).json({ error: 'Erro ao carregar dashboard' });
   }
 };
