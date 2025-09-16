@@ -128,29 +128,11 @@
           </div>
           <div class="card-body">
             <form method="GET" action="/executivo/analise-estoque" class="row g-3">
-              <div class="col-md-4">
-                <label for="material" class="form-label">Material/Código</label>
-                <input type="text" class="form-control" id="material" name="material"
-                       value="<%= filtrosAtivos.material || '' %>"
-                       placeholder="Digite código ou nome do material">
-              </div>
-              <div class="col-md-3">
-                <label for="localizacao" class="form-label">Localização</label>
-                <select class="form-select" id="localizacao" name="localizacao">
-                  <option value="">Todas as localizações</option>
-                  <% filtrosDisponiveis.localizacoes.forEach(function(loc) { %>
-                    <option value="<%= loc.localizacao %>"
-                            <%= filtrosAtivos.localizacao === loc.localizacao ? 'selected' : '' %>>
-                      <%= loc.localizacao %>
-                    </option>
-                  <% }); %>
-                </select>
-              </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <label for="familia" class="form-label">Família</label>
                 <select class="form-select" id="familia" name="familia">
                   <option value="">Todas as famílias</option>
-                  <% filtrosDisponiveis.familias.forEach(function(fam) { %>
+                  <% filtrosEstoque.familias.forEach(function(fam) { %>
                     <option value="<%= fam.familia %>"
                             <%= filtrosAtivos.familia === fam.familia ? 'selected' : '' %>>
                       <%= fam.familia %>
@@ -158,12 +140,72 @@
                   <% }); %>
                 </select>
               </div>
-              <div class="col-md-2 d-flex align-items-end">
+              <div class="col-md-2">
+                <label for="cor" class="form-label">Cor</label>
+                <select class="form-select" id="cor" name="cor">
+                  <option value="">Todas as cores</option>
+                  <% filtrosEstoque.cores.forEach(function(c) { %>
+                    <option value="<%= c.cor %>"
+                            <%= filtrosAtivos.cor === c.cor ? 'selected' : '' %>>
+                      <%= c.cor %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="tamanho" class="form-label">Tamanho</label>
+                <select class="form-select" id="tamanho" name="tamanho">
+                  <option value="">Todos os tamanhos</option>
+                  <% filtrosEstoque.tamanhos.forEach(function(t) { %>
+                    <option value="<%= t.tamanho %>"
+                            <%= filtrosAtivos.tamanho === t.tamanho ? 'selected' : '' %>>
+                      <%= t.tamanho %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="empresa" class="form-label">Empresa</label>
+                <select class="form-select" id="empresa" name="empresa">
+                  <option value="">Todas as empresas</option>
+                  <% filtrosEstoque.empresas.forEach(function(emp) { %>
+                    <option value="<%= emp.empresa %>"
+                            <%= filtrosAtivos.empresa === emp.empresa ? 'selected' : '' %>>
+                      <%= emp.empresa %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="ano" class="form-label">Ano</label>
+                <select class="form-select" id="ano" name="ano">
+                  <option value="">Todos os anos</option>
+                  <% filtrosEstoque.anos.forEach(function(a) { %>
+                    <option value="<%= a.ano %>"
+                            <%= filtrosAtivos.ano === a.ano ? 'selected' : '' %>>
+                      <%= a.ano %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="mes" class="form-label">Mês</label>
+                <select class="form-select" id="mes" name="mes">
+                  <option value="">Todos os meses</option>
+                  <% filtrosEstoque.meses.forEach(function(m) { %>
+                    <option value="<%= m.mes %>"
+                            <%= filtrosAtivos.mes === m.mes ? 'selected' : '' %>>
+                      <%= m.mes %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-12">
                 <button type="submit" class="btn btn-primary me-2">
                   <i class="fas fa-search"></i> Filtrar
                 </button>
                 <a href="/executivo/analise-estoque" class="btn btn-secondary">
-                  <i class="fas fa-times"></i> Limpar
+                  <i class="fas fa-times"></i> Limpar Filtros
                 </a>
               </div>
             </form>
@@ -189,6 +231,11 @@
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="familia-tab" data-bs-toggle="tab" data-bs-target="#familia" type="button" role="tab">
               <i class="fas fa-tags"></i> Por Família
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="faturamento-tab" data-bs-toggle="tab" data-bs-target="#faturamento" type="button" role="tab">
+              <i class="fas fa-chart-line"></i> Faturamento
             </button>
           </li>
         </ul>

@@ -64,19 +64,19 @@ export class OrdemCompraItemModel {
     const connection = await pool.getConnection();
 
     try {
-      // Buscar códigos das tabelas relacionadas
+      // Buscar nomes das tabelas relacionadas
       const [familiaRows] = await connection.execute<RowDataPacket[]>(
-        'SELECT codigo FROM familia WHERE id = ?',
+        'SELECT nome FROM familia WHERE id = ?',
         [familiaId]
       );
 
       const [tamanhoRows] = await connection.execute<RowDataPacket[]>(
-        'SELECT codigo FROM tamanho WHERE id = ?',
+        'SELECT nome, sigla FROM tamanho WHERE id = ?',
         [tamanhoId]
       );
 
       const [corRows] = await connection.execute<RowDataPacket[]>(
-        'SELECT codigo FROM cor WHERE id = ?',
+        'SELECT nome FROM cor WHERE id = ?',
         [corId]
       );
 
@@ -84,9 +84,9 @@ export class OrdemCompraItemModel {
         throw new Error('Família, tamanho ou cor não encontrados');
       }
 
-      const familia = familiaRows[0].codigo;
-      const tamanho = tamanhoRows[0].codigo;
-      const cor = corRows[0].codigo;
+      const familia = familiaRows[0].nome.replace(/\s+/g, '').toUpperCase();
+      const tamanho = (tamanhoRows[0].sigla || tamanhoRows[0].nome).replace(/\s+/g, '').toUpperCase();
+      const cor = corRows[0].nome.replace(/\s+/g, '').toUpperCase();
 
       return `${familia}${tamanho}${cor}`;
     } finally {
