@@ -523,15 +523,39 @@
 <script>
 function confirmarExclusao() {
     if (confirm('Tem certeza que deseja excluir esta ordem de compra? Esta ação não pode ser desfeita.')) {
-        // Implementar exclusão se necessário
-        alert('Funcionalidade de exclusão será implementada em breve.');
+        // Enviar requisição DELETE para excluir
+        fetch('/planejamento/ordem-compra/<%= ordemCompra.id %>', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'  // Incluir cookies de autenticação
+        })
+        .then(response => {
+            if (response.status === 401) {
+                alert('Sessão expirada. Faça login novamente.');
+                window.location.href = '/login';
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                alert('Ordem de compra excluída com sucesso!');
+                window.location.href = '/planejamento/ordem-compra';
+            } else {
+                alert('Erro ao excluir ordem de compra: ' + (data.error || 'Erro desconhecido'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao excluir ordem de compra:', error);
+            alert('Erro ao excluir ordem de compra. Tente novamente.');
+        });
     }
 }
 
 function aprovarOrdemCompra() {
-    console.log('Função aprovarOrdemCompra chamada');
     if (confirm('Tem certeza que deseja aprovar esta ordem de compra?\n\nEla será movida para o fluxo de Purchase Order e não poderá mais ser editada como uma ordem de compra comum.')) {
-        console.log('Confirmação aceita, fazendo fetch...');
         // Enviar requisição POST para aprovar
         fetch('/planejamento/ordem-compra/<%= ordemCompra.id %>/approve', {
             method: 'POST',
@@ -541,7 +565,6 @@ function aprovarOrdemCompra() {
             credentials: 'same-origin'  // Incluir cookies de autenticação
         })
         .then(response => {
-            console.log('Resposta recebida:', response.status, response.statusText);
             if (response.status === 401) {
                 alert('Sessão expirada. Faça login novamente.');
                 window.location.href = '/login';
@@ -550,7 +573,6 @@ function aprovarOrdemCompra() {
             return response.json();
         })
         .then(data => {
-            console.log('Dados da resposta:', data);
             if (data && data.success) {
                 alert('Ordem de compra aprovada com sucesso! Redirecionando para Purchase Order...');
                 window.location.href = data.redirectUrl || '/planejamento/purchase-order/<%= ordemCompra.id %>';
@@ -559,11 +581,9 @@ function aprovarOrdemCompra() {
             }
         })
         .catch(error => {
-            console.error('Erro na requisição:', error);
+            console.error('Erro:', error);
             alert('Erro ao aprovar ordem de compra. Tente novamente.');
         });
-    } else {
-        console.log('Confirmação cancelada');
     }
 }
 </script>

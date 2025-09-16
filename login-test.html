@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Teste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      color: red;
+      margin: 10px 0;
+    }
+    .success {
+      color: green;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Login Teste</h2>
+  
+  <div id="message"></div>
+  
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" value="admin@test.com" required>
+    <input type="password" id="password" placeholder="Senha" value="admin123" required>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+      
+      console.log('Attempting login with:', { email, password: '***' });
+      
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
+        
+        if (response.ok) {
+          if (response.redirected) {
+            messageDiv.innerHTML = '<div class="success">Login realizado com sucesso! Redirecionando...</div>';
+            setTimeout(() => {
+              window.location.href = response.url;
+            }, 1000);
+          } else {
+            const text = await response.text();
+            console.log('Response text:', text.substring(0, 200));
+            
+            if (text.includes('Dashboard') || text.includes('dashboard')) {
+              messageDiv.innerHTML = '<div class="success">Login realizado com sucesso!</div>';
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000);
+            } else {
+              messageDiv.innerHTML = '<div class="error">Erro: Credenciais inválidas ou erro no servidor</div>';
+            }
+          }
+        } else {
+          const text = await response.text();
+          console.log('Error response:', text.substring(0, 200));
+          messageDiv.innerHTML = '<div class="error">Erro: ' + response.status + ' - ' + response.statusText + '</div>';
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        messageDiv.innerHTML = '<div class="error">Erro de conexão: ' + error.message + '</div>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -6,8 +6,8 @@ export interface OrdemCompraItem {
   numero_oc: string;
   sku: string;
   quantidade: number;
-  preco_unitario: number;
-  preco_total: number;
+  valor_unitario_brl: number;
+  valor_total_brl: number;
   familia_id: number;
   tamanho_id: number;
   cor_id: number;
@@ -21,7 +21,7 @@ export interface OrdemCompraItemCreateData {
   tamanho_id: number;
   cor_id: number;
   quantidade: number;
-  preco_unitario: number;
+  valor_unitario_brl: number;
 }
 
 export interface OrdemCompraItemWithDetails extends OrdemCompraItem {
@@ -52,7 +52,7 @@ export class OrdemCompraItemModel {
     if (!data.quantidade || data.quantidade <= 0) {
       throw new Error('Quantidade deve ser maior que 0');
     }
-    if (!data.preco_unitario || data.preco_unitario <= 0) {
+    if (!data.valor_unitario_brl || data.valor_unitario_brl <= 0) {
       throw new Error('Preço unitário deve ser maior que 0');
     }
   }
@@ -111,7 +111,7 @@ export class OrdemCompraItemModel {
       tamanho_id: parseInt(data.tamanho_id),
       cor_id: parseInt(data.cor_id),
       quantidade: parseFloat(data.quantidade),
-      preco_unitario: parseFloat(data.preco_unitario)
+      valor_unitario_brl: parseFloat(data.valor_unitario_brl)
     };
   }
 
@@ -123,20 +123,20 @@ export class OrdemCompraItemModel {
 
     const convertedData = this.convertNumericFields(data);
     const sku = await this.generateSKU(convertedData.familia_id, convertedData.tamanho_id, convertedData.cor_id);
-    const precoTotal = this.calculateTotalPrice(convertedData.quantidade, convertedData.preco_unitario);
+    const precoTotal = this.calculateTotalPrice(convertedData.quantidade, convertedData.valor_unitario_brl);
 
     const connection = await pool.getConnection();
 
     try {
       const [result] = await connection.execute<ResultSetHeader>(
         `INSERT INTO ${this.TABLE_NAME}
-         (numero_oc, sku, quantidade, preco_unitario, preco_total, familia_id, tamanho_id, cor_id, created_at, updated_at)
+         (numero_oc, sku, quantidade, valor_unitario_brl, valor_total_brl, familia_id, tamanho_id, cor_id, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           convertedData.numero_oc,
           sku,
           convertedData.quantidade,
-          convertedData.preco_unitario,
+          convertedData.valor_unitario_brl,
           precoTotal,
           convertedData.familia_id,
           convertedData.tamanho_id,
@@ -149,8 +149,8 @@ export class OrdemCompraItemModel {
         numero_oc: convertedData.numero_oc,
         sku,
         quantidade: convertedData.quantidade,
-        preco_unitario: convertedData.preco_unitario,
-        preco_total: precoTotal,
+        valor_unitario_brl: convertedData.valor_unitario_brl,
+        valor_total_brl: precoTotal,
         familia_id: convertedData.familia_id,
         tamanho_id: convertedData.tamanho_id,
         cor_id: convertedData.cor_id,
@@ -253,14 +253,14 @@ export class OrdemCompraItemModel {
 
     // Recalcular preço total se quantidade ou preço unitário foram alterados
     let precoTotal: number | undefined;
-    if (convertedData.quantidade || convertedData.preco_unitario) {
+    if (convertedData.quantidade || convertedData.valor_unitario_brl) {
       const item = await this.findById(id);
       if (!item) {
         throw new Error('Item não encontrado');
       }
 
       const quantidade = convertedData.quantidade || item.quantidade;
-      const precoUnitario = convertedData.preco_unitario || item.preco_unitario;
+      const precoUnitario = convertedData.valor_unitario_brl || item.valor_unitario_brl;
       precoTotal = this.calculateTotalPrice(quantidade, precoUnitario);
     }
 
@@ -280,13 +280,13 @@ export class OrdemCompraItemModel {
         params.push(convertedData.quantidade);
       }
 
-      if (convertedData.preco_unitario !== undefined) {
-        query += ', preco_unitario = ?';
-        params.push(convertedData.preco_unitario);
+      if (convertedData.valor_unitario_brl !== undefined) {
+        query += ', valor_unitario_brl = ?';
+        params.push(convertedData.valor_unitario_brl);
       }
 
       if (precoTotal !== undefined) {
-        query += ', preco_total = ?';
+        query += ', valor_total_brl = ?';
         params.push(precoTotal);
       }
 

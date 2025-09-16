@@ -15,7 +15,7 @@ const planejamento_1 = __importDefault(require("./routes/planejamento"));
 const executivo_1 = __importDefault(require("./routes/executivo"));
 const database_1 = require("./models/database");
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001; // Mudando para porta 3001
 // View engine configuration
 app.set('view engine', 'ejs');
 app.set('views', path_1.default.join(__dirname, 'views'));

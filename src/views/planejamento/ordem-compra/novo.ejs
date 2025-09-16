@@ -1,825 +1,619 @@
-<div class="content-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">
-                <i class="fas fa-plus-circle text-primary me-2"></i>
-                Nova Ordem de Compra
-            </h1>
-            <p class="text-muted mb-0">Adicione múltiplos produtos à sua lista de compras</p>
-        </div>
-        <a href="/planejamento/ordem-compra" class="btn btn-secondary-custom">
-            <i class="fas fa-arrow-left me-2"></i>
-            Voltar
-        </a>
-    </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Ordem de Compra - Sistema de Gestão</title>
 
-    <form action="/planejamento/ordem-compra" method="POST" id="ordemCompraForm">
-        <!-- Informações Gerais da OC -->
-        <div class="card-custom mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-info-circle text-primary me-2"></i>
-                    Informações Gerais da Ordem de Compra
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 col-lg-3">
-                        <label for="numero_oc" class="form-label-custom">
-                            <i class="fas fa-hashtag me-1"></i>
-                            Número da OC
-                        </label>
-                        <input type="text" class="form-control-custom" id="numero_oc" name="numero_oc"
-                               placeholder="Será gerado automaticamente se vazio">
-                        <div class="form-text">Deixe vazio para gerar automaticamente</div>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"        // Função para gerar SKU
+        function gerarSKU(familiaSelect, tamanhoSelect, corSelect, skuInput) {
+            try {
+                if (familiaSelect && familiaSelect.value && tamanhoSelect && tamanhoSelect.value && corSelect && corSelect.value && skuInput) {
+                    const familiaText = familiaSelect.options[familiaSelect.selectedIndex].text;
+                    const tamanhoText = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+                    const corText = corSelect.options[corSelect.selectedIndex].text;
+
+                    skuInput.value = `${familiaText}-${tamanhoText}-${corText}`.toUpperCase().replace(/\s+/g, '');
+                }
+            } catch (error) {
+                console.error('Error generating SKU:', error);
+            }
+        }- Custom CSS -->
+    <link href="/css/components.css" rel="stylesheet">
+
+    <style>
+        .form-label-custom {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control-custom {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-custom:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .section-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .item-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .badge-custom {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            font-size: 0.8rem;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            font-weight: 600;
+        }
+
+        .input-group .form-control-custom {
+            border-left: none;
+        }
+
+        .input-group .form-control-custom:focus {
+            border-left: none;
+        }
+
+        .remove-item-btn {
+            transition: all 0.3s ease;
+        }
+
+        .remove-item-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+        }
+
+        .text-success-custom {
+            color: #28a745 !important;
+            font-weight: 700;
+        }
+
+        .text-primary-custom {
+            color: #007bff !important;
+            font-weight: 600;
+        }
+
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-0 text-primary-custom">
+                            <i class="fas fa-plus-circle me-3"></i>
+                            Nova Ordem de Compra
+                        </h1>
+                        <p class="text-muted mt-1">Crie uma nova ordem de compra com múltiplos itens</p>
                     </div>
-
-                    <div class="col-md-6 col-lg-3">
-                        <label for="fornecedor" class="form-label-custom">
-                            <i class="fas fa-building me-1"></i>
-                            Fornecedor
-                        </label>
-                        <input type="text" class="form-control-custom" id="fornecedor" name="fornecedor"
-                               placeholder="Nome do fornecedor" required>
-                    </div>
-
-                    <div class="col-md-6 col-lg-3">
-                        <label for="data_emissao" class="form-label-custom">
-                            <i class="fas fa-calendar-plus me-1"></i>
-                            Data de Emissão
-                        </label>
-                        <input type="date" class="form-control-custom" id="data_emissao" name="data_emissao"
-                               value="<%= new Date().toISOString().split('T')[0] %>">
-                    </div>
-
-                    <div class="col-md-6 col-lg-3">
-                        <label for="data_entrega_prevista" class="form-label-custom">
-                            <i class="fas fa-calendar-check me-1"></i>
-                            Data de Entrega Prevista
-                        </label>
-                        <input type="date" class="form-control-custom" id="data_entrega_prevista"
-                               name="data_entrega_prevista">
+                    <div>
+                        <a href="/planejamento/ordem-compra" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Voltar
+                        </a>
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="status_oc" class="form-label-custom">
-                            <i class="fas fa-tasks me-1"></i>
-                            Status da OC
-                        </label>
-                        <select class="form-control-custom" id="status_oc" name="status_oc">
-                            <option value="rascunho">Rascunho</option>
-                            <option value="emitida">Emitida</option>
-                            <option value="aprovada">Aprovada</option>
-                            <option value="em_transito">Em Trânsito</option>
-                            <option value="recebida">Recebida</option>
-                            <option value="cancelada">Cancelada</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="observacoes" class="form-label-custom">
-                            <i class="fas fa-sticky-note me-1"></i>
-                            Observações
-                        </label>
-                        <textarea class="form-control-custom" id="observacoes" name="observacoes"
-                                  rows="2" placeholder="Observações adicionais sobre a ordem de compra"></textarea>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- Itens da Ordem de Compra -->
-        <div class="card-custom mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-list text-primary me-2"></i>
-                    Itens da Ordem de Compra
-                </h5>
-                <button type="button" class="btn btn-success-custom btn-sm" id="addItemBtn">
-                    <i class="fas fa-plus me-2"></i>
-                    Adicionar Item
-                </button>
-            </div>
-            <div class="card-body">
-                <!-- Container para os itens -->
-                <div id="itensContainer">
-                    <!-- Primeiro item sempre presente -->
-                    <div class="item-card card mb-4 border-primary" data-item-index="0">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">
-                                <i class="fas fa-box me-2"></i>
-                                Item 1
-                            </h6>
-                            <button type="button" class="btn btn-danger btn-sm remove-item-btn" style="display: none;">
-                                <i class="fas fa-trash"></i>
-                            </button>
+        <!-- Alert Container -->
+        <div id="alertContainer" class="mb-4" style="display: none;"></div>
+
+        <!-- Form -->
+        <form action="/planejamento/ordem-compra" method="POST" id="ordemCompraForm">
+            <!-- Seção: Informações Gerais da OC -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Informações Gerais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="numero_oc" class="form-label-custom">
+                                <i class="fas fa-hashtag me-1"></i>
+                                Número da OC
+                            </label>
+                            <input type="text" class="form-control-custom" id="numero_oc" name="numero_oc"
+                                   placeholder="Será gerado automaticamente se vazio">
+                            <div class="form-text">Deixe em branco para gerar automaticamente</div>
                         </div>
-                        <div class="card-body">
-                            <!-- Seleção de Produto -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-cube me-2"></i>
-                                        Seleção de Produto
-                                    </h6>
-                                </div>
-                            </div>
+                        <div class="col-md-6">
+                            <label for="fornecedor" class="form-label-custom">
+                                <i class="fas fa-building me-1"></i>
+                                Fornecedor *
+                            </label>
+                            <input type="text" class="form-control-custom" id="fornecedor" name="fornecedor" required>
+                        </div>
+                    </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-users me-1"></i>
-                                        Família *
-                                    </label>
-                                    <select class="form-control-custom familia-select" name="itens[0][familia_id]" required>
-                                        <option value="">Selecione uma família</option>
-                                        <% familias.forEach(familia => { %>
-                                            <option value="<%= familia.id %>"><%= familia.nome %></option>
-                                        <% }); %>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-expand me-1"></i>
-                                        Tamanho *
-                                    </label>
-                                    <select class="form-control-custom tamanho-select" name="itens[0][tamanho_id]" required>
-                                        <option value="">Selecione um tamanho</option>
-                                        <% tamanhos.forEach(tamanho => { %>
-                                            <option value="<%= tamanho.id %>"><%= tamanho.sigla || tamanho.nome %></option>
-                                        <% }); %>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-palette me-1"></i>
-                                        Cor *
-                                    </label>
-                                    <select class="form-control-custom cor-select" name="itens[0][cor_id]" required>
-                                        <option value="">Selecione uma cor</option>
-                                        <% cores.forEach(cor => { %>
-                                            <option value="<%= cor.id %>"><%= cor.nome %></option>
-                                        <% }); %>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="data_emissao" class="form-label-custom">
+                                <i class="fas fa-calendar-plus me-1"></i>
+                                Data de Emissão
+                            </label>
+                            <input type="date" class="form-control-custom" id="data_emissao" name="data_emissao"
+                                   value="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="data_entrega_prevista" class="form-label-custom">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                Data de Entrega Prevista
+                            </label>
+                            <input type="date" class="form-control-custom" id="data_entrega_prevista" name="data_entrega_prevista">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status_oc" class="form-label-custom">
+                                <i class="fas fa-tasks me-1"></i>
+                                Status da OC
+                            </label>
+                            <select class="form-control-custom" id="status_oc" name="status_oc">
+                                <option value="rascunho">Rascunho</option>
+                                <option value="aprovado">Aprovado</option>
+                                <option value="em_transito">Em Trânsito</option>
+                                <option value="recebido">Recebido</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-barcode me-1"></i>
-                                        SKU (Gerado Automaticamente)
-                                    </label>
-                                    <input type="text" class="form-control-custom sku-input" name="itens[0][sku]" readonly>
-                                    <div class="form-text">Será atualizado automaticamente baseado na família, tamanho e cor selecionados</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-tasks me-1"></i>
-                                        Status *
-                                    </label>
-                                    <select class="form-control-custom" name="itens[0][status]" required>
-                                        <option value="pendente">Pendente</option>
-                                        <option value="aprovado">Aprovado</option>
-                                        <option value="em_transito">Em Trânsito</option>
-                                        <option value="recebido">Recebido</option>
-                                        <option value="cancelado">Cancelado</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="observacoes" class="form-label-custom">
+                                <i class="fas fa-comment me-1"></i>
+                                Observações
+                            </label>
+                            <textarea class="form-control-custom" id="observacoes" name="observacoes" rows="3"
+                                      placeholder="Observações adicionais sobre a ordem de compra"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            <!-- Quantidade e Valores -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-weight me-2"></i>
-                                        Quantidade e Valores
-                                    </h6>
-                                </div>
+            <!-- Seção: Itens da Ordem de Compra -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list text-primary me-2"></i>
+                        Itens da Ordem de Compra
+                    </h5>
+                    <button type="button" class="btn btn-success-custom btn-sm" id="addItemBtn">
+                        <i class="fas fa-plus me-2"></i>
+                        Adicionar Item
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="itemsContainer" data-familias='<%- JSON.stringify(familias) %>' data-tamanhos='<%- JSON.stringify(tamanhos) %>' data-cores='<%- JSON.stringify(cores) %>' data-item-count="1">
+                        <!-- Item padrão -->
+                        <div class="item-card card mb-4 border-primary" data-item-id="0">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-box me-2"></i>
+                                    Item 1
+                                </h6>
+                                <button type="button" class="btn btn-danger btn-sm remove-item-btn" style="display: none;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-hashtag me-1"></i>
-                                        Quantidade *
-                                    </label>
-                                    <input type="number" class="form-control-custom quantidade-input" name="itens[0][quantidade]"
-                                           step="0.01" min="0" required>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-users me-1"></i>
+                                            Família *
+                                        </label>
+                                        <select class="form-control-custom familia-select" name="itens[0][familia_id]" required>
+                                            <option value="">Selecione uma família</option>
+                                            <% familias.forEach(familia => { %>
+                                                <option value="<%= familia.id %>"><%= familia.nome %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-expand me-1"></i>
+                                            Tamanho *
+                                        </label>
+                                        <select class="form-control-custom tamanho-select" name="itens[0][tamanho_id]" required>
+                                            <option value="">Selecione um tamanho</option>
+                                            <% tamanhos.forEach(tamanho => { %>
+                                                <option value="<%= tamanho.id %>"><%= tamanho.sigla || tamanho.nome %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-palette me-1"></i>
+                                            Cor *
+                                        </label>
+                                        <select class="form-control-custom cor-select" name="itens[0][cor_id]" required>
+                                            <option value="">Selecione uma cor</option>
+                                            <% cores.forEach(cor => { %>
+                                                <option value="<%= cor.id %>"><%= cor.nome %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-balance-scale me-1"></i>
-                                        Unidade de Medida *
-                                    </label>
-                                    <select class="form-control-custom unidade-select" name="itens[0][unidade_medida]" required>
-                                        <option value="">Selecione a unidade</option>
-                                        <option value="unidade">Unidade</option>
-                                        <option value="kg">Quilograma (kg)</option>
-                                        <option value="metro">Metro</option>
-                                        <option value="metro_quadrado">Metro Quadrado (m²)</option>
-                                        <option value="litro">Litro</option>
-                                        <option value="peca">Peça</option>
-                                    </select>
-                                </div>
-                            </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-money-bill-wave me-1"></i>
-                                        Valor Unitário R$ *
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">R$</span>
-                                        <input type="number" class="form-control-custom valor-unitario-input" name="itens[0][valor_unitario_brl]"
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-barcode me-1"></i>
+                                            SKU (Gerado Automaticamente)
+                                        </label>
+                                        <input type="text" class="form-control-custom sku-input" name="itens[0][sku]" readonly>
+                                        <div class="form-text">Será atualizado automaticamente baseado na família, tamanho e cor selecionados</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-tasks me-1"></i>
+                                            Status *
+                                        </label>
+                                        <select class="form-control-custom" name="itens[0][status]" required>
+                                            <option value="pendente">Pendente</option>
+                                            <option value="aprovado">Aprovado</option>
+                                            <option value="em_transito">Em Trânsito</option>
+                                            <option value="recebido">Recebido</option>
+                                            <option value="cancelado">Cancelado</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-hashtag me-1"></i>
+                                            Quantidade *
+                                        </label>
+                                        <input type="number" class="form-control-custom quantidade-input" name="itens[0][quantidade]"
                                                step="0.01" min="0" required>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-exchange-alt me-1"></i>
-                                        Cotação Dólar *
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">R$</span>
-                                        <input type="number" class="form-control-custom cotacao-input" name="itens[0][cotacao_dolar]"
-                                               step="0.0001" min="0" value="5.0000" required>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-balance-scale me-1"></i>
+                                            Unidade de Medida *
+                                        </label>
+                                        <select class="form-control-custom unidade-select" name="itens[0][unidade_medida]" required>
+                                            <option value="">Selecione a unidade</option>
+                                            <option value="unidade">Unidade</option>
+                                            <option value="kg">Quilograma (kg)</option>
+                                            <option value="metro">Metro</option>
+                                            <option value="metro_quadrado">Metro Quadrado (m²)</option>
+                                            <option value="litro">Litro</option>
+                                            <option value="peca">Peça</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-dollar-sign me-1"></i>
-                                        Valor Total R$
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">R$</span>
-                                        <input type="number" class="form-control-custom valor-total-input" name="itens[0][valor_total_brl]"
-                                               step="0.01" readonly>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            Valor Unitário R$ *
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <input type="number" class="form-control-custom valor-unitario-input" name="itens[0][valor_unitario_brl]"
+                                                   step="0.01" min="0" required>
+                                        </div>
                                     </div>
-                                    <div class="form-text">Calculado automaticamente</div>
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-exchange-alt me-1"></i>
+                                            Cotação Dólar *
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <input type="number" class="form-control-custom cotacao-input" name="itens[0][cotacao_dolar]"
+                                                   step="0.0001" min="0" value="5.0000" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-dollar-sign me-1"></i>
+                                            Valor Total R$
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <input type="number" class="form-control-custom valor-total-input" name="itens[0][valor_total_brl]"
+                                                   step="0.01" readonly>
+                                        </div>
+                                        <div class="form-text">Calculado automaticamente</div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Datas -->
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-calendar-alt me-2"></i>
-                                        Estimativa de Tempo de Entrega (ETD)
-                                    </h6>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">
-                                        <i class="fas fa-calendar-check me-1"></i>
-                                        ETD Planejado *
-                                    </label>
-                                    <input type="date" class="form-control-custom" name="itens[0][etd_planejado]" required>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <i class="fas fa-calendar-check me-1"></i>
+                                            ETD Planejado *
+                                        </label>
+                                        <input type="date" class="form-control-custom" name="itens[0][etd_planejado]" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Resumo da Ordem de Compra -->
-        <div class="card-custom mb-4">
-            <div class="card-body">
-                <h6 class="text-primary mb-3">
-                    <i class="fas fa-calculator me-2"></i>
-                    Resumo da Ordem de Compra
-                </h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Total de Itens:</strong>
-                            <span id="totalItens" class="badge bg-primary">1</span>
+            <!-- Seção: Resumo da OC -->
+            <div class="card mb-4 shadow-sm summary-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>
+                        Resumo da Ordem de Compra
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-list-ol fa-2x text-primary mb-2"></i>
+                                <h4 class="text-primary-custom" id="totalItens">1</h4>
+                                <small class="text-muted">Total de Itens</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Valor Total R$:</strong>
-                            <span id="valorTotalBrl" class="text-success fw-bold">R$ 0,00</span>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                <h4 class="text-success-custom" id="valorTotalBRL">R$ 0,00</h4>
+                                <small class="text-muted">Valor Total BRL</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Valor Total USD:</strong>
-                            <span id="valorTotalUsd" class="text-success fw-bold">$ 0,00</span>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
+                                <h4 class="text-info" id="valorTotalUSD">$ 0,00</h4>
+                                <small class="text-muted">Valor Total USD</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Botões de Ação -->
-        <div class="card-custom">
-            <div class="card-body">
-                <div class="d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-secondary-custom" onclick="window.history.back()">
-                        <i class="fas fa-times me-2"></i>
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary-custom">
+            <!-- Botões de Ação -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <button type="submit" class="btn btn-success-custom btn-lg me-3" id="submitBtn">
                         <i class="fas fa-save me-2"></i>
                         Criar Ordem de Compra
                     </button>
+                    <a href="/planejamento/ordem-compra" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>
+                        Cancelar
+                    </a>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
-
-<!-- Template para item (escondido) -->
-<div id="itemTemplate" style="display: none;">
-    <div class="item-card card mb-3 border-primary">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">
-                <i class="fas fa-box me-2"></i>
-                Item <span class="item-number">1</span>
-            </h6>
-            <button type="button" class="btn btn-danger btn-sm remove-item-btn">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-        <div class="card-body">
-            <!-- Produto -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-users me-1"></i>
-                        Família *
-                    </label>
-                    <select class="form-control-custom familia-select" required>
-                        <option value="">Selecione uma família</option>
-                        <% familias.forEach(familia => { %>
-                            <option value="<%= familia.id %>"><%= familia.nome %></option>
-                        <% }); %>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-expand me-1"></i>
-                        Tamanho *
-                    </label>
-                    <select class="form-control-custom tamanho-select" required>
-                        <option value="">Selecione um tamanho</option>
-                        <% tamanhos.forEach(tamanho => { %>
-                            <option value="<%= tamanho.id %>"><%= tamanho.sigla || tamanho.nome %></option>
-                        <% }); %>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-palette me-1"></i>
-                        Cor *
-                    </label>
-                    <select class="form-control-custom cor-select" required>
-                        <option value="">Selecione uma cor</option>
-                        <% cores.forEach(cor => { %>
-                            <option value="<%= cor.id %>"><%= cor.nome %></option>
-                        <% }); %>
-                    </select>
-                </div>
-            </div>
-
-            <!-- SKU -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label-custom">
-                        <i class="fas fa-barcode me-1"></i>
-                        SKU (Gerado Automaticamente)
-                    </label>
-                    <input type="text" class="form-control-custom sku-input" readonly>
-                    <input type="hidden" class="sku-hidden">
-                </div>
-            </div>
-
-            <!-- Quantidade e Unidade -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-hashtag me-1"></i>
-                        Quantidade *
-                    </label>
-                    <input type="number" class="form-control-custom quantidade-input"
-                           step="0.01" min="0" required>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-balance-scale me-1"></i>
-                        Unidade de Medida *
-                    </label>
-                    <select class="form-control-custom unidade-select" required>
-                        <option value="">Selecione a unidade</option>
-                        <option value="unidade">Unidade</option>
-                        <option value="kg">Quilograma (kg)</option>
-                        <option value="metro">Metro</option>
-                        <option value="metro_quadrado">Metro Quadrado (m²)</option>
-                        <option value="litro">Litro</option>
-                        <option value="peca">Peça</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-calendar me-1"></i>
-                        ETD Planejado
-                    </label>
-                    <input type="date" class="form-control-custom etd-input">
-                </div>
-            </div>
-
-            <!-- Valores -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-money-bill-wave me-1"></i>
-                        Valor Unitário R$ *
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text">R$</span>
-                        <input type="number" class="form-control-custom valor-unitario-brl-input"
-                               step="0.01" min="0" required>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-dollar-sign me-1"></i>
-                        Cotação Dólar
-                    </label>
-                    <input type="number" class="form-control-custom cotacao-input"
-                           step="0.01" min="0" placeholder="Ex: 5.00">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label-custom">
-                        <i class="fas fa-dollar-sign me-1"></i>
-                        Valor Unitário USD
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="number" class="form-control-custom valor-unitario-usd-input"
-                               step="0.01" min="0">
-                    </div>
-                    <div class="form-text">Calculado automaticamente se cotação informada</div>
-                </div>
-            </div>
-
-            <!-- Totais do Item -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="alert alert-info">
-                        <strong>Valor Total R$:</strong>
-                        <span class="valor-total-brl">R$ 0,00</span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="alert alert-info">
-                        <strong>Valor Total USD:</strong>
-                        <span class="valor-total-usd">$ 0,00</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
-</div>
 
-<style>
-.item-card {
-    transition: all 0.3s ease;
-}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-.item-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+    <script>
+        // Função para gerar SKU
+        function gerarSKU(familiaSelect, tamanhoSelect, corSelect, skuInput) {
+            if (familiaSelect.value && tamanhoSelect.value && corSelect.value) {
+                const familiaText = familiaSelect.options[familiaSelect.selectedIndex].text;
+                const tamanhoText = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+                const corText = corSelect.options[corSelect.selectedIndex].text;
 
-.remove-item-btn {
-    transition: all 0.2s ease;
-}
-
-.remove-item-btn:hover {
-    transform: scale(1.1);
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let itemCount = 0;
-    const itensContainer = document.getElementById('itensContainer');
-    const itemTemplate = document.getElementById('itemTemplate');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const ordemCompraForm = document.getElementById('ordemCompraForm');
-
-    // Adicionar primeiro item automaticamente
-    addItem();
-
-    // Event listener para adicionar item
-    addItemBtn.addEventListener('click', addItem);
-
-    // Event listener para submissão do formulário
-    ordemCompraForm.addEventListener('submit', prepareFormData);
-
-    function addItem() {
-        itemCount++;
-        const itemElement = itemTemplate.cloneNode(true);
-        itemElement.style.display = 'block';
-        itemElement.id = `item-${itemCount}`;
-
-        // Atualizar número do item
-        const itemNumber = itemElement.querySelector('.item-number');
-        itemNumber.textContent = itemCount;
-
-        // Configurar event listeners
-        setupItemEventListeners(itemElement, itemCount);
-
-        // Adicionar ao container
-        itensContainer.appendChild(itemElement);
-
-        // Atualizar totais
-        updateTotais();
-
-        // Mostrar seção de totais
-        document.getElementById('totaisSection').style.display = 'block';
-    }
-
-    function setupItemEventListeners(itemElement, itemIndex) {
-        // Botão remover
-        const removeBtn = itemElement.querySelector('.remove-item-btn');
-        removeBtn.addEventListener('click', function() {
-            if (itemCount > 1) {
-                itemElement.remove();
-                itemCount--;
-                updateItemNumbers();
-                updateTotais();
-            } else {
-                alert('A ordem de compra deve ter pelo menos um item.');
+                skuInput.value = `${familiaText}-${tamanhoText}-${corText}`.toUpperCase().replace(/\s+/g, '');
             }
-        });
+        }
 
-        // Selects para gerar SKU
-        const familiaSelect = itemElement.querySelector('.familia-select');
-        const tamanhoSelect = itemElement.querySelector('.tamanho-select');
-        const corSelect = itemElement.querySelector('.cor-select');
-        const skuInput = itemElement.querySelector('.sku-input');
-        const skuHidden = itemElement.querySelector('.sku-hidden');
+        // Função para calcular valor total
+        function calcularTotal(quantidadeInput, valorUnitarioInput, valorTotalInput) {
+            try {
+                if (quantidadeInput && valorUnitarioInput && valorTotalInput) {
+                    const quantidade = parseFloat(quantidadeInput.value) || 0;
+                    const valorUnitario = parseFloat(valorUnitarioInput.value) || 0;
+                    const total = quantidade * valorUnitario;
 
-        function updateSKU() {
-            const familiaId = familiaSelect.value;
-            const tamanhoId = tamanhoSelect.value;
-            const corId = corSelect.value;
-
-            if (familiaId && tamanhoId && corId) {
-                // Buscar nomes das opções selecionadas
-                const familiaOption = familiaSelect.options[familiaSelect.selectedIndex];
-                const tamanhoOption = tamanhoSelect.options[tamanhoSelect.selectedIndex];
-                const corOption = corSelect.options[corSelect.selectedIndex];
-
-                if (familiaOption && tamanhoOption && corOption) {
-                    const familiaNome = familiaOption.text;
-                    const tamanhoNome = tamanhoOption.text;
-                    const corNome = corOption.text;
-
-                    const sku = `${familiaNome}${tamanhoNome}${corNome}`.toUpperCase().replace(/\s+/g, '');
-                    skuInput.value = sku;
-                    skuHidden.value = sku;
+                    valorTotalInput.value = total.toFixed(2);
+                    atualizarResumo();
                 }
+            } catch (error) {
+                console.error('Error calculating total:', error);
             }
         }
 
-        familiaSelect.addEventListener('change', updateSKU);
-        tamanhoSelect.addEventListener('change', updateSKU);
-        corSelect.addEventListener('change', updateSKU);
+        // Função para atualizar resumo da OC
+        function atualizarResumo() {
+            try {
+                let totalItens = document.querySelectorAll('.item-card').length;
+                let valorTotalBRL = 0;
 
-        // Cálculos automáticos de valores
-        const quantidadeInput = itemElement.querySelector('.quantidade-input');
-        const valorUnitarioBrlInput = itemElement.querySelector('.valor-unitario-brl-input');
-        const cotacaoInput = itemElement.querySelector('.cotacao-input');
-        const valorUnitarioUsdInput = itemElement.querySelector('.valor-unitario-usd-input');
-        const valorTotalBrlSpan = itemElement.querySelector('.valor-total-brl');
-        const valorTotalUsdSpan = itemElement.querySelector('.valor-total-usd');
+                document.querySelectorAll('.valor-total-input').forEach(input => {
+                    valorTotalBRL += parseFloat(input.value) || 0;
+                });
 
-        function updateCalculations() {
-            const quantidade = parseFloat(quantidadeInput.value) || 0;
-            const valorUnitarioBrl = parseFloat(valorUnitarioBrlInput.value) || 0;
-            const cotacao = parseFloat(cotacaoInput.value) || 0;
-            let valorUnitarioUsd = parseFloat(valorUnitarioUsdInput.value) || 0;
+                const totalItensElement = document.getElementById('totalItens');
+                const valorTotalBRLElement = document.getElementById('valorTotalBRL');
+                const valorTotalUSDElement = document.getElementById('valorTotalUSD');
 
-            // Calcular USD se cotação informada
-            if (cotacao > 0 && valorUnitarioBrl > 0 && valorUnitarioUsd === 0) {
-                valorUnitarioUsd = valorUnitarioBrl / cotacao;
-                valorUnitarioUsdInput.value = valorUnitarioUsd.toFixed(2);
+                if (totalItensElement) totalItensElement.textContent = totalItens;
+                if (valorTotalBRLElement) valorTotalBRLElement.textContent = `R$ ${valorTotalBRL.toFixed(2)}`;
+                if (valorTotalUSDElement) valorTotalUSDElement.textContent = `$ ${(valorTotalBRL / 5.0).toFixed(2)}`;
+            } catch (error) {
+                console.error('Error updating summary:', error);
             }
-
-            // Calcular totais
-            const valorTotalBrl = quantidade * valorUnitarioBrl;
-            const valorTotalUsd = quantidade * valorUnitarioUsd;
-
-            valorTotalBrlSpan.textContent = `R$ ${valorTotalBrl.toFixed(2)}`;
-            valorTotalUsdSpan.textContent = `$ ${valorTotalUsd.toFixed(2)}`;
-
-            updateTotais();
         }
 
-        quantidadeInput.addEventListener('input', updateCalculations);
-        valorUnitarioBrlInput.addEventListener('input', updateCalculations);
-        cotacaoInput.addEventListener('input', updateCalculations);
-        valorUnitarioUsdInput.addEventListener('input', updateCalculations);
-    }
+        // Função para adicionar item
+        function addItem() {
+            try {
+                const container = document.getElementById('itemsContainer');
+                if (!container) {
+                    console.error('Items container not found');
+                    return;
+                }
 
-    function updateItemNumbers() {
-        const items = itensContainer.querySelectorAll('.item-card');
-        items.forEach((item, index) => {
-            const itemNumber = item.querySelector('.item-number');
-            itemNumber.textContent = index + 1;
-        });
-    }
+                const familias = JSON.parse(container.dataset.familias || '[]');
+                const tamanhos = JSON.parse(container.dataset.tamanhos || '[]');
+                const cores = JSON.parse(container.dataset.cores || '[]');
+                let itemCounter = parseInt(container.dataset.itemCount) || 1;
 
-    function updateTotais() {
-        let totalItens = 0;
-        let valorTotalBrl = 0;
-        let valorTotalUsd = 0;
+                itemCounter++;
+                container.dataset.itemCount = itemCounter;
 
-        const items = itensContainer.querySelectorAll('.item-card');
-        items.forEach(item => {
-            const quantidade = parseFloat(item.querySelector('.quantidade-input').value) || 0;
-            const valorUnitarioBrl = parseFloat(item.querySelector('.valor-unitario-brl-input').value) || 0;
-            const valorUnitarioUsd = parseFloat(item.querySelector('.valor-unitario-usd-input').value) || 0;
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card card mb-4 border-primary';
+                itemCard.setAttribute('data-item-id', `new-${itemCounter}`);
 
-            if (quantidade > 0) {
-                totalItens += quantidade;
-                valorTotalBrl += quantidade * valorUnitarioBrl;
-                valorTotalUsd += quantidade * valorUnitarioUsd;
-            }
-        });
-
-        document.getElementById('totalItens').textContent = totalItens.toString();
-        document.getElementById('valorTotalBrl').textContent = `R$ ${valorTotalBrl.toFixed(2)}`;
-        document.getElementById('valorTotalUsd').textContent = `$ ${valorTotalUsd.toFixed(2)}`;
-    }
-
-    function prepareFormData(e) {
-        e.preventDefault();
-
-        const formData = new FormData();
-        const itens = [];
-
-        // Dados gerais da OC
-        const numeroOc = document.getElementById('numero_oc').value;
-        const fornecedor = document.getElementById('fornecedor').value;
-        const dataEntregaPrevista = document.getElementById('data_entrega_prevista').value;
-        const observacoes = document.getElementById('observacoes').value;
-
-        formData.append('numero_oc', numeroOc);
-        formData.append('fornecedor', fornecedor);
-        formData.append('data_entrega_prevista', dataEntregaPrevista);
-        formData.append('observacoes', observacoes);
-        formData.append('status', 'rascunho');
-
-        // Coletar dados dos itens
-        const itemCards = itensContainer.querySelectorAll('.item-card');
-        itemCards.forEach((card, index) => {
-            const item = {
-                familia_id: card.querySelector('.familia-select').value,
-                tamanho_id: card.querySelector('.tamanho-select').value,
-                cor_id: card.querySelector('.cor-select').value,
-                sku: card.querySelector('.sku-hidden').value,
-                quantidade: card.querySelector('.quantidade-input').value,
-                unidade_medida: card.querySelector('.unidade-select').value,
-                valor_unitario_brl: card.querySelector('.valor-unitario-brl-input').value,
-                cotacao_dolar: card.querySelector('.cotacao-input').value,
-                valor_unitario_usd: card.querySelector('.valor-unitario-usd-input').value,
-                etd_planejado: card.querySelector('.etd-input').value,
-                status: 'pendente'
-            };
-
-            // Validar item obrigatório
-            if (!item.familia_id || !item.tamanho_id || !item.cor_id || !item.quantidade || !item.unidade_medida || !item.valor_unitario_brl) {
-                alert(`Item ${index + 1}: Preencha todos os campos obrigatórios (Família, Tamanho, Cor, Quantidade, Unidade e Valor).`);
-                return;
-            }
-
-            itens.push(item);
-        });
-
-        if (itens.length === 0) {
-            alert('Adicione pelo menos um item à ordem de compra.');
-            return;
-        }
-
-        // Enviar dados via AJAX
-        enviarDados(formData, itens);
-    }
-
-    async function enviarDados(formData, itens) {
-        try {
-            const response = await fetch('/planejamento/ordem-compra', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ordemCompra: {
-                        numero_oc: formData.get('numero_oc'),
-                        fornecedor: formData.get('fornecedor'),
-                        data_entrega_prevista: formData.get('data_entrega_prevista'),
-                        observacoes: formData.get('observacoes'),
-                        status: formData.get('status')
-                    },
-                    itens: itens
-                })
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                window.location.href = `/planejamento/ordem-compra/${result.id}`;
-            } else {
-                const error = await response.json();
-                alert('Erro ao criar ordem de compra: ' + (error.error || 'Erro desconhecido'));
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro ao enviar dados. Tente novamente.');
-        }
-    }
-});
-</script>
-
+                itemCard.innerHTML = `
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-box me-2"></i>
+                            Item ${itemCounter}
+                        </h6>
+                        <button type="button" class="btn btn-danger btn-sm remove-item-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="tamanho_id" class="form-label-custom">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-users me-1"></i>
+                                    Família *
+                                </label>
+                                <select class="form-control-custom familia-select" name="itens[new-${itemCounter}][familia_id]" required>
+                                    <option value="">Selecione uma família</option>
+                                    ${familias.map(f => `<option value="${f.id}">${f.nome}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-custom">
                                     <i class="fas fa-expand me-1"></i>
                                     Tamanho *
                                 </label>
-                                <select class="form-control-custom" id="tamanho_id" name="tamanho_id" required>
+                                <select class="form-control-custom tamanho-select" name="itens[new-${itemCounter}][tamanho_id]" required>
                                     <option value="">Selecione um tamanho</option>
-                                    <% tamanhos.forEach(tamanho => { %>
-                                        <option value="<%= tamanho.id %>"><%= tamanho.sigla || tamanho.nome %></option>
-                                    <% }); %>
+                                    ${tamanhos.map(t => `<option value="${t.id}">${t.sigla || t.nome}</option>`).join('')}
                                 </select>
                             </div>
-
                             <div class="col-md-4">
-                                <label for="cor_id" class="form-label-custom">
+                                <label class="form-label-custom">
                                     <i class="fas fa-palette me-1"></i>
                                     Cor *
                                 </label>
-                                <select class="form-control-custom" id="cor_id" name="cor_id" required>
+                                <select class="form-control-custom cor-select" name="itens[new-${itemCounter}][cor_id]" required>
                                     <option value="">Selecione uma cor</option>
-                                    <% cores.forEach(cor => { %>
-                                        <option value="<%= cor.id %>"><%= cor.nome %></option>
-                                    <% }); %>
+                                    ${cores.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')}
                                 </select>
-                            </div>
-                        </div>
-
-                        <!-- SKU Gerado -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="sku" class="form-label-custom">
-                                    <i class="fas fa-barcode me-1"></i>
-                                    SKU (Gerado Automaticamente)
-                                </label>
-                                <input type="text" class="form-control-custom" id="sku" name="sku" readonly>
-                                <div class="form-text">Será gerado automaticamente baseado na família, tamanho e cor selecionados</div>
-                            </div>
-                        </div>
-
-                        <!-- Quantidade e Unidade -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-weight me-2"></i>
-                                    Quantidade
-                                </h6>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="quantidade" class="form-label-custom">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-barcode me-1"></i>
+                                    SKU (Gerado Automaticamente)
+                                </label>
+                                <input type="text" class="form-control-custom sku-input" name="itens[new-${itemCounter}][sku]" readonly>
+                                <div class="form-text">Será atualizado automaticamente baseado na família, tamanho e cor selecionados</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-tasks me-1"></i>
+                                    Status *
+                                </label>
+                                <select class="form-control-custom" name="itens[new-${itemCounter}][status]" required>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="aprovado">Aprovado</option>
+                                    <option value="em_transito">Em Trânsito</option>
+                                    <option value="recebido">Recebido</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
                                     <i class="fas fa-hashtag me-1"></i>
                                     Quantidade *
                                 </label>
-                                <input type="number" class="form-control-custom" id="quantidade" name="quantidade"
+                                <input type="number" class="form-control-custom quantidade-input" name="itens[new-${itemCounter}][quantidade]"
                                        step="0.01" min="0" required>
                             </div>
-
                             <div class="col-md-6">
-                                <label for="unidade_medida" class="form-label-custom">
+                                <label class="form-label-custom">
                                     <i class="fas fa-balance-scale me-1"></i>
                                     Unidade de Medida *
                                 </label>
-                                <select class="form-control-custom" id="unidade_medida" name="unidade_medida" required>
+                                <select class="form-control-custom unidade-select" name="itens[new-${itemCounter}][unidade_medida]" required>
                                     <option value="">Selecione a unidade</option>
                                     <option value="unidade">Unidade</option>
                                     <option value="kg">Quilograma (kg)</option>
@@ -831,231 +625,255 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
 
-                        <!-- Valores -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-dollar-sign me-2"></i>
-                                    Valores
-                                </h6>
-                            </div>
-                        </div>
-
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="valor_compra_brl" class="form-label-custom">
+                                <label class="form-label-custom">
                                     <i class="fas fa-money-bill-wave me-1"></i>
-                                    Valor em R$ *
+                                    Valor Unitário R$ *
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text">R$</span>
-                                    <input type="number" class="form-control-custom" id="valor_compra_brl"
-                                           name="valor_compra_brl" step="0.01" min="0" required>
+                                    <input type="number" class="form-control-custom valor-unitario-input" name="itens[new-${itemCounter}][valor_unitario_brl]"
+                                           step="0.01" min="0" required>
                                 </div>
                             </div>
-
                             <div class="col-md-4">
-                                <label for="cotacao_dolar" class="form-label-custom">
+                                <label class="form-label-custom">
                                     <i class="fas fa-exchange-alt me-1"></i>
                                     Cotação Dólar *
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text">R$</span>
-                                    <input type="number" class="form-control-custom" id="cotacao_dolar"
-                                           name="cotacao_dolar" step="0.0001" min="0" required>
+                                    <input type="number" class="form-control-custom cotacao-input" name="itens[new-${itemCounter}][cotacao_dolar]"
+                                           step="0.0001" min="0" value="5.0000" required>
                                 </div>
                             </div>
-
                             <div class="col-md-4">
-                                <label for="valor_compra_usd" class="form-label-custom">
+                                <label class="form-label-custom">
                                     <i class="fas fa-dollar-sign me-1"></i>
-                                    Valor em USD
+                                    Valor Total R$
                                 </label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control-custom" id="valor_compra_usd"
-                                           name="valor_compra_usd" step="0.01" readonly>
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control-custom valor-total-input" name="itens[new-${itemCounter}][valor_total_brl]"
+                                           step="0.01" readonly>
                                 </div>
                                 <div class="form-text">Calculado automaticamente</div>
                             </div>
                         </div>
 
-                        <!-- Datas ETD -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-calendar-alt me-2"></i>
-                                    Estimativa de Tempo de Entrega (ETD)
-                                </h6>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="etd_planejado" class="form-label-custom">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
                                     <i class="fas fa-calendar-check me-1"></i>
                                     ETD Planejado *
                                 </label>
-                                <input type="date" class="form-control-custom" id="etd_planejado"
-                                       name="etd_planejado" required>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="etd_proposto" class="form-label-custom">
-                                    <i class="fas fa-calendar-plus me-1"></i>
-                                    ETD Proposto
-                                </label>
-                                <input type="date" class="form-control-custom" id="etd_proposto"
-                                       name="etd_proposto">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="etd_real" class="form-label-custom">
-                                    <i class="fas fa-calendar-day me-1"></i>
-                                    ETD Real
-                                </label>
-                                <input type="date" class="form-control-custom" id="etd_real"
-                                       name="etd_real">
+                                <input type="date" class="form-control-custom" name="itens[new-${itemCounter}][etd_planejado]" required>
                             </div>
                         </div>
-
-                        <!-- Botões -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="d-flex gap-3">
-                                    <button type="submit" class="btn btn-primary-custom">
-                                        <i class="fas fa-save me-2"></i>
-                                        Salvar Ordem de Compra
-                                    </button>
-                                    <button type="reset" class="btn btn-secondary-custom">
-                                        <i class="fas fa-undo me-2"></i>
-                                        Limpar Formulário
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar com informações -->
-        <div class="col-lg-4">
-            <div class="card-custom">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle text-info me-2"></i>
-                        Informações
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info-custom">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Dica:</strong> O SKU será gerado automaticamente combinando Família-Tamanho-Cor.
                     </div>
+                `;
 
-                    <div class="alert alert-warning-custom">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Atenção:</strong> Campos marcados com * são obrigatórios.
+                container.appendChild(itemCard);
+                attachEventListeners(itemCard);
+                atualizarResumo();
+            } catch (error) {
+                console.error('Error adding item:', error);
+            }
+        }
+
+        // Função para remover item
+        function removeItem(button) {
+            try {
+                const itemCard = button.closest('.item-card');
+                if (!itemCard) {
+                    console.error('Item card not found');
+                    return;
+                }
+
+                const totalItems = document.querySelectorAll('.item-card').length;
+
+                if (totalItems > 1) {
+                    itemCard.remove();
+                    atualizarResumo();
+                } else {
+                    alert('A ordem de compra deve ter pelo menos um item.');
+                }
+            } catch (error) {
+                console.error('Error removing item:', error);
+            }
+        }
+
+        // Função para anexar event listeners a um item
+        function attachEventListeners(itemCard) {
+            try {
+                const familiaSelect = itemCard.querySelector('.familia-select');
+                const tamanhoSelect = itemCard.querySelector('.tamanho-select');
+                const corSelect = itemCard.querySelector('.cor-select');
+                const skuInput = itemCard.querySelector('.sku-input');
+                const quantidadeInput = itemCard.querySelector('.quantidade-input');
+                const valorUnitarioInput = itemCard.querySelector('.valor-unitario-input');
+                const valorTotalInput = itemCard.querySelector('.valor-total-input');
+                const removeBtn = itemCard.querySelector('.remove-item-btn');
+
+                if (!familiaSelect || !tamanhoSelect || !corSelect || !skuInput ||
+                    !quantidadeInput || !valorUnitarioInput || !valorTotalInput || !removeBtn) {
+                    console.error('Missing elements in item card');
+                    return;
+                }
+
+                // Event listeners para SKU
+                familiaSelect.addEventListener('change', () => gerarSKU(familiaSelect, tamanhoSelect, corSelect, skuInput));
+                tamanhoSelect.addEventListener('change', () => gerarSKU(familiaSelect, tamanhoSelect, corSelect, skuInput));
+                corSelect.addEventListener('change', () => gerarSKU(familiaSelect, tamanhoSelect, corSelect, skuInput));
+
+                // Event listeners para cálculo
+                quantidadeInput.addEventListener('input', () => calcularTotal(quantidadeInput, valorUnitarioInput, valorTotalInput));
+                valorUnitarioInput.addEventListener('input', () => calcularTotal(quantidadeInput, valorUnitarioInput, valorTotalInput));
+
+                // Event listener para remover
+                removeBtn.addEventListener('click', () => removeItem(removeBtn));
+            } catch (error) {
+                console.error('Error attaching event listeners:', error);
+            }
+        }
+
+        // Função para mostrar alertas
+        function showAlert(message, type = 'success') {
+            try {
+                const alertContainer = document.getElementById('alertContainer');
+                if (!alertContainer) {
+                    console.error('Alert container not found');
+                    return;
+                }
+
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+                alertContainer.innerHTML = `
+                    <div class="alert ${alertClass} alert-custom alert-dismissible fade show" role="alert">
+                        <i class="fas ${iconClass} me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
+                `;
+                alertContainer.style.display = 'block';
 
-                    <div class="alert alert-success-custom">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Status:</strong> A ordem será criada com status "planejado".
-                    </div>
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    const alert = alertContainer.querySelector('.alert');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            if (alertContainer) alertContainer.style.display = 'none';
+                        }, 150);
+                    }
+                }, 5000);
+            } catch (error) {
+                console.error('Error showing alert:', error);
+            }
+        }
 
-                    <hr>
+        // Função para validar formulário
+        // Função para validação simples do formulário
+        function validarFormulario() {
+            try {
+                console.log('Validating form...');
+                const requiredFields = document.querySelectorAll('input[required], select[required]');
+                let isValid = true;
 
-                    <h6 class="text-primary mb-3">
-                        <i class="fas fa-question-circle me-2"></i>
-                        Campos ETD
-                    </h6>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2">
-                            <strong>ETD Planejado:</strong> Data estimada no planejamento
-                        </li>
-                        <li class="mb-2">
-                            <strong>ETD Proposto:</strong> Data proposta pelo fornecedor
-                        </li>
-                        <li class="mb-0">
-                            <strong>ETD Real:</strong> Data real de entrega
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                requiredFields.forEach(field => {
+                    if (!field.value || !field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
 
-<script>
-// Função para gerar SKU automaticamente
-function gerarSKU() {
-    const familiaSelect = document.getElementById('familia_id');
-    const tamanhoSelect = document.getElementById('tamanho_id');
-    const corSelect = document.getElementById('cor_id');
-    const skuInput = document.getElementById('sku');
+                console.log('Form validation result:', isValid);
+                return isValid;
+            } catch (error) {
+                console.error('Error in form validation:', error);
+                return false;
+            }
+        }
 
-    const familia = familiaSelect.options[familiaSelect.selectedIndex]?.text || '';
-    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex]?.text || '';
-    const cor = corSelect.options[corSelect.selectedIndex]?.text || '';
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
 
-    if (familia && tamanho && cor) {
-        skuInput.value = `${familia}-${tamanho}-${cor}`;
-    } else {
-        skuInput.value = '';
-    }
-}
+            // Verificar se elementos existem antes de anexar listeners
+            const addItemBtn = document.getElementById('addItemBtn');
+            const ordemCompraForm = document.getElementById('ordemCompraForm');
+            const submitBtn = document.getElementById('submitBtn');
 
-// Função para calcular valor em USD
-function calcularValorUSD() {
-    const valorBRL = parseFloat(document.getElementById('valor_compra_brl').value) || 0;
-    const cotacao = parseFloat(document.getElementById('cotacao_dolar').value) || 0;
-    const valorUSD = document.getElementById('valor_compra_usd');
+            if (!addItemBtn) {
+                console.error('addItemBtn not found');
+                return;
+            }
+            if (!ordemCompraForm) {
+                console.error('ordemCompraForm not found');
+                return;
+            }
+            if (!submitBtn) {
+                console.error('submitBtn not found');
+                return;
+            }
 
-    if (valorBRL > 0 && cotacao > 0) {
-        valorUSD.value = (valorBRL / cotacao).toFixed(2);
-    } else {
-        valorUSD.value = '';
-    }
-}
+            console.log('All required elements found, attaching listeners...');
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Gerar SKU quando selects mudarem
-    document.getElementById('familia_id').addEventListener('change', gerarSKU);
-    document.getElementById('tamanho_id').addEventListener('change', gerarSKU);
-    document.getElementById('cor_id').addEventListener('change', gerarSKU);
+            // Anexar event listeners aos itens existentes
+            document.querySelectorAll('.item-card').forEach(attachEventListeners);
+            atualizarResumo();
 
-    // Calcular valor USD quando valores mudarem
-    document.getElementById('valor_compra_brl').addEventListener('input', calcularValorUSD);
-    document.getElementById('cotacao_dolar').addEventListener('input', calcularValorUSD);
+            // Event listeners principais
+            addItemBtn.addEventListener('click', addItem);
 
-    // Validação do formulário
-    const form = document.getElementById('ordemCompraForm');
-    form.addEventListener('submit', function(e) {
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
+            // Form submission - SIMPLIFICADO
+            ordemCompraForm.addEventListener('submit', function(e) {
+                console.log('Form submitted');
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                field.classList.remove('is-invalid');
+                if (!validarFormulario()) {
+                    e.preventDefault();
+                    showAlert('Por favor, preencha todos os campos obrigatórios.', 'danger');
+                    console.log('Form validation failed');
+                    return false;
+                }
+
+                console.log('Form is valid, proceeding with submission');
+                
+                // Desabilitar botão para evitar duplo envio
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processando...';
+
+                // Debug: log form data
+                const formData = new FormData(ordemCompraForm);
+                console.log('Form data entries:');
+                for (const [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+            });
+
+            console.log('Event listeners attached successfully');
+        });
+
+        // Input validation feedback
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('form-control-custom')) {
+                if (e.target.hasAttribute('required') && e.target.value.trim()) {
+                    e.target.classList.remove('is-invalid');
+                }
             }
         });
 
-        if (!isValid) {
-            e.preventDefault();
-            alert('Por favor, preencha todos os campos obrigatórios.');
-        }
-    });
-
-    // Animações de entrada
-    const cards = document.querySelectorAll('.card-custom');
-    cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-        card.classList.add('animate-fade-in');
-    });
-});
-</script>
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('form-control-custom')) {
+                if (e.target.hasAttribute('required') && e.target.value.trim()) {
+                    e.target.classList.remove('is-invalid');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

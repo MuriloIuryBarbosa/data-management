@@ -44,16 +44,34 @@ export const getNovoOrdemCompra = async (req: Request, res: Response) => {
 
 export const createOrdemCompra = async (req: Request, res: Response) => {
   try {
-    const { ordemCompra, itens } = req.body;
+    console.log('Received data:', req.body);
 
-    // Verificar se é a nova estrutura (com múltiplos itens) ou a antiga
-    if (itens && Array.isArray(itens) && itens.length > 0) {
-      // Nova estrutura: múltiplos itens
-      return await createOrdemCompraComItens(req, res);
-    } else {
-      // Estrutura antiga: compatibilidade
+    // Extrair itens do corpo da requisição
+    const itens = req.body.itens;
+
+    // Se não temos itens estruturados, verificar se é formato antigo
+    if (!itens) {
+      console.log('No structured items found, trying single item format');
       return await createOrdemCompraUnicoItem(req, res);
     }
+
+    // Converter objeto de itens para array se necessário
+    let itensArray = [];
+    if (typeof itens === 'object' && !Array.isArray(itens)) {
+      // Converter de object para array
+      itensArray = Object.values(itens);
+    } else if (Array.isArray(itens)) {
+      itensArray = itens;
+    }
+
+    console.log('Processed items array:', itensArray);
+
+    if (!itensArray || itensArray.length === 0) {
+      return res.status(400).json({ error: 'A ordem de compra deve ter pelo menos um item' });
+    }
+
+    // Criar OC com múltiplos itens
+    return await createOrdemCompraComItens(req, res, itensArray);
   } catch (error) {
     console.error('Erro ao criar ordem de compra:', error);
     res.status(500).json({ error: 'Erro ao criar ordem de compra' });
@@ -61,9 +79,20 @@ export const createOrdemCompra = async (req: Request, res: Response) => {
 };
 
 // Função para criar OC com múltiplos itens (nova estrutura)
-const createOrdemCompraComItens = async (req: Request, res: Response) => {
+const createOrdemCompraComItens = async (req: Request, res: Response, itensArray?: any[]) => {
   try {
-    const { ordemCompra, itens } = req.body;
+    // Se itensArray não foi passado, extrair do req.body
+    let itens = itensArray;
+    if (!itens) {
+      const bodyItens = req.body.itens;
+      if (typeof bodyItens === 'object' && !Array.isArray(bodyItens)) {
+        itens = Object.values(bodyItens);
+      } else {
+        itens = bodyItens;
+      }
+    }
+
+    console.log('Processing items:', itens);
 
     if (!itens || !Array.isArray(itens) || itens.length === 0) {
       return res.status(400).json({ error: 'A ordem de compra deve ter pelo menos um item' });
@@ -72,8 +101,11 @@ const createOrdemCompraComItens = async (req: Request, res: Response) => {
     // Preparar dados dos itens
     const itensPreparados = [];
     for (const item of itens) {
+      console.log('Processing item:', item);
+      
       // Validar item
       if (!item.familia_id || !item.tamanho_id || !item.cor_id || !item.quantidade || !item.unidade_medida || !item.valor_unitario_brl) {
+        console.error('Missing required fields in item:', item);
         return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos para cada item' });
       }
 
@@ -83,6 +115,7 @@ const createOrdemCompraComItens = async (req: Request, res: Response) => {
       const cor = await corModel.findById(parseInt(item.cor_id));
 
       if (!familia || !tamanho || !cor) {
+        console.error('Invalid familia, tamanho or cor:', { familia_id: item.familia_id, tamanho_id: item.tamanho_id, cor_id: item.cor_id });
         return res.status(400).json({ error: 'Família, tamanho ou cor inválidos' });
       }
 
@@ -108,18 +141,24 @@ const createOrdemCompraComItens = async (req: Request, res: Response) => {
       });
     }
 
-    // Preparar dados da OC
+    console.log('Prepared items:', itensPreparados);
+
+    // Preparar dados da OC - extrair diretamente do req.body
     const ordemCompraData = {
-      numero_oc: ordemCompra.numero_oc || null,
-      fornecedor: ordemCompra.fornecedor || null,
-      data_emissao: new Date().toISOString().split('T')[0],
-      data_entrega_prevista: ordemCompra.data_entrega_prevista || null,
-      observacoes: ordemCompra.observacoes || null,
-      status: ordemCompra.status || 'rascunho'
+      numero_oc: req.body.numero_oc || null,
+      fornecedor: req.body.fornecedor || null,
+      data_emissao: req.body.data_emissao || new Date().toISOString().split('T')[0],
+      data_entrega_prevista: req.body.data_entrega_prevista || null,
+      observacoes: req.body.observacoes || null,
+      status: req.body.status_oc || 'rascunho'
     };
+
+    console.log('OC data:', ordemCompraData);
 
     // Criar OC com itens
     const ordemCompraCriada = await ordemCompraModel.createWithItems(ordemCompraData, itensPreparados);
+
+    console.log('OC created:', ordemCompraCriada);
 
     // Registrar histórico de criação
     const usuario = (req as any).user;
@@ -133,10 +172,17 @@ const createOrdemCompraComItens = async (req: Request, res: Response) => {
       'criacao'
     );
 
-    res.json({ id: ordemCompraCriada.id, message: 'Ordem de compra criada com sucesso' });
+    // Responder com sucesso e redirecionamento
+    if (req.headers.accept?.includes('application/json')) {
+      res.json({ id: ordemCompraCriada.id, message: 'Ordem de compra criada com sucesso' });
+    } else {
+      // Redirecionar para a página de visualização da OC criada
+      res.redirect(`/planejamento/ordem-compra/${ordemCompraCriada.id}`);
+    }
   } catch (error) {
     console.error('Erro ao criar OC com itens:', error);
-    res.status(500).json({ error: 'Erro ao criar ordem de compra' });
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    res.status(500).json({ error: 'Erro ao criar ordem de compra: ' + errorMessage });
   }
 };
 
@@ -211,9 +257,9 @@ export const getVerOrdemCompra = async (req: Request, res: Response) => {
     }
 
     // Buscar detalhes relacionados
-    const familia = await familiaModel.findById(ordemCompra.familia_id);
-    const tamanho = await tamanhoModel.findById(ordemCompra.tamanho_id);
-    const cor = await corModel.findById(ordemCompra.cor_id);
+    const familia = ordemCompra.familia_id ? await familiaModel.findById(ordemCompra.familia_id) : null;
+    const tamanho = ordemCompra.tamanho_id ? await tamanhoModel.findById(ordemCompra.tamanho_id) : null;
+    const cor = ordemCompra.cor_id ? await corModel.findById(ordemCompra.cor_id) : null;
 
     res.render('planejamento/ordem-compra/ver', {
       ordemCompra,
@@ -443,8 +489,7 @@ const updateOrdemCompraComItens = async (req: Request, res: Response) => {
       data_entrega_prevista: data_entrega_prevista || null,
       observacoes: observacoes || null,
       valor_total_brl,
-      valor_total_usd,
-      total_itens: itensPreparados.length
+      valor_total_usd
     };
 
     // Atualizar OC com itens
@@ -680,6 +725,52 @@ export const updatePurchaseOrderStatus = async (req: Request, res: Response) => 
     });
   } catch (error) {
     console.error('Erro ao atualizar status da purchase order:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+export const deleteOrdemCompra = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || isNaN(Number(id))) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const ordemCompraId = Number(id);
+
+    // Verificar se a ordem de compra existe
+    const ordemCompra = await ordemCompraModel.findById(ordemCompraId);
+    if (!ordemCompra) {
+      return res.status(404).json({ error: 'Ordem de compra não encontrada' });
+    }
+
+    // Verificar se a ordem pode ser excluída (não está aprovada)
+    if (ordemCompra.status === 'aprovado') {
+      return res.status(400).json({
+        error: 'Não é possível excluir uma ordem de compra aprovada. Use o fluxo de Purchase Order para gerenciar ordens aprovadas.'
+      });
+    }
+
+    // Excluir histórico relacionado primeiro
+    await OrdemCompraHistoricoModel.deleteByOrdemCompraId(ordemCompraId);
+
+    // Excluir itens relacionados
+    const { OrdemCompraItemModel } = await import('../models/ordemCompraItem');
+    if (ordemCompra.numero_oc) {
+        await OrdemCompraItemModel.deleteByNumeroOC(ordemCompra.numero_oc);
+    }
+
+    // Excluir a ordem de compra
+    const deleted = await ordemCompraModel.delete(ordemCompraId);
+
+    if (deleted) {
+      res.json({ success: true, message: 'Ordem de compra excluída com sucesso' });
+    } else {
+      res.status(500).json({ error: 'Erro ao excluir ordem de compra' });
+    }
+  } catch (error) {
+    console.error('Erro ao excluir ordem de compra:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };

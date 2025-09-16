@@ -5,6 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mainController_1 = require("../controllers/mainController");
+const path_1 = __importDefault(require("path"));
 const router = express_1.default.Router();
 router.get('/', mainController_1.authenticateToken, mainController_1.getDashboard);
+// Rota de teste simples
+router.get('/teste-minimo', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../../teste-minimo.html'));
+});
 exports.default = router;

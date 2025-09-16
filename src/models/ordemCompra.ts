@@ -3,19 +3,26 @@ import { OrdemCompraItemModel } from './ordemCompraItem';
 
 export interface OrdemCompra {
   id: number;
-  familia_id: number;
-  tamanho_id: number;
-  cor_id: number;
-  sku: string;
-  quantidade: number;
-  unidade_medida: string;
-  valor_compra_brl: number;
-  cotacao_dolar: number;
-  valor_compra_usd: number;
-  etd_planejado: string;
+  numero_oc?: string;
+  fornecedor?: string;
+  data_emissao?: string;
+  data_entrega_prevista?: string;
+  observacoes?: string;
+  valor_total_brl?: number;
+  valor_total_usd?: number;
+  status: string;
+  familia_id?: number;
+  tamanho_id?: number;
+  cor_id?: number;
+  sku?: string;
+  quantidade?: number;
+  unidade_medida?: string;
+  valor_compra_brl?: number;
+  cotacao_dolar?: number;
+  valor_compra_usd?: number;
+  etd_planejado?: string;
   etd_proposto?: string;
   etd_real?: string;
-  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -255,7 +262,7 @@ export class OrdemCompraModel {
         tamanho_id: itemData.tamanho_id,
         cor_id: itemData.cor_id,
         quantidade: itemData.quantidade,
-        preco_unitario: itemData.preco_unitario
+        valor_unitario_brl: itemData.valor_unitario_brl
       });
     }
   }

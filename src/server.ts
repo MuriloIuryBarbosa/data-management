@@ -11,7 +11,7 @@ import executivoRoutes from './routes/executivo';
 import { initDatabase } from './models/database';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001; // Mudando para porta 3001
 
 // View engine configuration
 app.set('view engine', 'ejs');

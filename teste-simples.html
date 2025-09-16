@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Nova Ordem de Compra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Teste - Página de Criação de OC</h1>
+        <p>Esta é uma versão simplificada para testar o carregamento.</p>
+
+        <div id="alertContainer"></div>
+
+        <form id="testForm">
+            <div class="mb-3">
+                <label for="testInput" class="form-label">Campo de Teste</label>
+                <input type="text" class="form-control" id="testInput" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Testar</button>
+        </form>
+
+        <div id="itemsContainer" class="mt-4">
+            <h3>Itens</h3>
+            <button type="button" class="btn btn-success" id="addItemBtn">Adicionar Item</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('Página carregada com sucesso!');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+
+            const addItemBtn = document.getElementById('addItemBtn');
+            const testForm = document.getElementById('testForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (addItemBtn) {
+                console.log('addItemBtn encontrado');
+                addItemBtn.addEventListener('click', function() {
+                    console.log('Botão adicionar item clicado');
+                    alert('Item adicionado!');
+                });
+            } else {
+                console.error('addItemBtn não encontrado');
+            }
+
+            if (testForm) {
+                console.log('testForm encontrado');
+                testForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Formulário enviado');
+                    alert('Formulário enviado com sucesso!');
+                });
+            } else {
+                console.error('testForm não encontrado');
+            }
+
+            if (submitBtn) {
+                console.log('submitBtn encontrado');
+            } else {
+                console.error('submitBtn não encontrado');
+            }
+        });
+
+        // Teste de elementos
+        setTimeout(function() {
+            console.log('Teste de timeout executado');
+            const elements = ['addItemBtn', 'testForm', 'submitBtn', 'alertContainer', 'itemsContainer'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    console.log(`Elemento ${id} encontrado`);
+                } else {
+                    console.error(`Elemento ${id} NÃO encontrado`);
+                }
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

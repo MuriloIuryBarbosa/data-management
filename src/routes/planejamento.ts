@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../controllers/mainController';
-import { getOrdemCompra, getNovoOrdemCompra, createOrdemCompra, getVerOrdemCompra, getEditarOrdemCompra, updateOrdemCompra, getHistoricoOrdemCompra, approveOrdemCompra, getPurchaseOrder, getVerPurchaseOrder, updatePurchaseOrderStatus } from '../controllers/planejamentoController';
+import { getOrdemCompra, getNovoOrdemCompra, createOrdemCompra, getVerOrdemCompra, getEditarOrdemCompra, updateOrdemCompra, getHistoricoOrdemCompra, approveOrdemCompra, deleteOrdemCompra, getPurchaseOrder, getVerPurchaseOrder, updatePurchaseOrderStatus } from '../controllers/planejamentoController';
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.post('/ordem-compra', createOrdemCompra);
 router.get('/ordem-compra/:id', getVerOrdemCompra);
 router.get('/ordem-compra/:id/editar', getEditarOrdemCompra);
 router.post('/ordem-compra/:id', updateOrdemCompra);
+router.delete('/ordem-compra/:id', deleteOrdemCompra);
 router.post('/ordem-compra/:id/approve', approveOrdemCompra);
 router.get('/ordem-compra/:id/historico', getHistoricoOrdemCompra);
 
