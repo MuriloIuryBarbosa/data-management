@@ -1,0 +1,354 @@
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-plus-circle text-primary me-2"></i>
+                Nova Ordem de Compra
+            </h1>
+            <p class="text-muted mb-0">Preencha os dados para criar uma nova ordem de compra</p>
+        </div>
+        <a href="/planejamento/ordem-compra" class="btn btn-secondary-custom">
+            <i class="fas fa-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart text-primary me-2"></i>
+                        Dados da Ordem de Compra
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="/planejamento/ordem-compra" method="POST" id="ordemCompraForm">
+                        <!-- Produto -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-box me-2"></i>
+                                    Produto
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="familia_id" class="form-label-custom">
+                                    <i class="fas fa-users me-1"></i>
+                                    Família *
+                                </label>
+                                <select class="form-control-custom" id="familia_id" name="familia_id" required>
+                                    <option value="">Selecione uma família</option>
+                                    <% familias.forEach(familia => { %>
+                                        <option value="<%= familia.id %>"><%= familia.nome %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="tamanho_id" class="form-label-custom">
+                                    <i class="fas fa-expand me-1"></i>
+                                    Tamanho *
+                                </label>
+                                <select class="form-control-custom" id="tamanho_id" name="tamanho_id" required>
+                                    <option value="">Selecione um tamanho</option>
+                                    <% tamanhos.forEach(tamanho => { %>
+                                        <option value="<%= tamanho.id %>"><%= tamanho.sigla || tamanho.nome %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="cor_id" class="form-label-custom">
+                                    <i class="fas fa-palette me-1"></i>
+                                    Cor *
+                                </label>
+                                <select class="form-control-custom" id="cor_id" name="cor_id" required>
+                                    <option value="">Selecione uma cor</option>
+                                    <% cores.forEach(cor => { %>
+                                        <option value="<%= cor.id %>"><%= cor.nome %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- SKU Gerado -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="sku" class="form-label-custom">
+                                    <i class="fas fa-barcode me-1"></i>
+                                    SKU (Gerado Automaticamente)
+                                </label>
+                                <input type="text" class="form-control-custom" id="sku" name="sku" readonly>
+                                <div class="form-text">Será gerado automaticamente baseado na família, tamanho e cor selecionados</div>
+                            </div>
+                        </div>
+
+                        <!-- Quantidade e Unidade -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-weight me-2"></i>
+                                    Quantidade
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="quantidade" class="form-label-custom">
+                                    <i class="fas fa-hashtag me-1"></i>
+                                    Quantidade *
+                                </label>
+                                <input type="number" class="form-control-custom" id="quantidade" name="quantidade"
+                                       step="0.01" min="0" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="unidade_medida" class="form-label-custom">
+                                    <i class="fas fa-balance-scale me-1"></i>
+                                    Unidade de Medida *
+                                </label>
+                                <select class="form-control-custom" id="unidade_medida" name="unidade_medida" required>
+                                    <option value="">Selecione a unidade</option>
+                                    <option value="unidade">Unidade</option>
+                                    <option value="kg">Quilograma (kg)</option>
+                                    <option value="metro">Metro</option>
+                                    <option value="metro_quadrado">Metro Quadrado (m²)</option>
+                                    <option value="litro">Litro</option>
+                                    <option value="peca">Peça</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Valores -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-dollar-sign me-2"></i>
+                                    Valores
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="valor_compra_brl" class="form-label-custom">
+                                    <i class="fas fa-money-bill-wave me-1"></i>
+                                    Valor em R$ *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control-custom" id="valor_compra_brl"
+                                           name="valor_compra_brl" step="0.01" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="cotacao_dolar" class="form-label-custom">
+                                    <i class="fas fa-exchange-alt me-1"></i>
+                                    Cotação Dólar *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control-custom" id="cotacao_dolar"
+                                           name="cotacao_dolar" step="0.0001" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="valor_compra_usd" class="form-label-custom">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    Valor em USD
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control-custom" id="valor_compra_usd"
+                                           name="valor_compra_usd" step="0.01" readonly>
+                                </div>
+                                <div class="form-text">Calculado automaticamente</div>
+                            </div>
+                        </div>
+
+                        <!-- Datas ETD -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Estimativa de Tempo de Entrega (ETD)
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="etd_planejado" class="form-label-custom">
+                                    <i class="fas fa-calendar-check me-1"></i>
+                                    ETD Planejado *
+                                </label>
+                                <input type="date" class="form-control-custom" id="etd_planejado"
+                                       name="etd_planejado" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="etd_proposto" class="form-label-custom">
+                                    <i class="fas fa-calendar-plus me-1"></i>
+                                    ETD Proposto
+                                </label>
+                                <input type="date" class="form-control-custom" id="etd_proposto"
+                                       name="etd_proposto">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="etd_real" class="form-label-custom">
+                                    <i class="fas fa-calendar-day me-1"></i>
+                                    ETD Real
+                                </label>
+                                <input type="date" class="form-control-custom" id="etd_real"
+                                       name="etd_real">
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-primary-custom">
+                                        <i class="fas fa-save me-2"></i>
+                                        Salvar Ordem de Compra
+                                    </button>
+                                    <button type="reset" class="btn btn-secondary-custom">
+                                        <i class="fas fa-undo me-2"></i>
+                                        Limpar Formulário
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar com informações -->
+        <div class="col-lg-4">
+            <div class="card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Informações
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info-custom">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Dica:</strong> O SKU será gerado automaticamente combinando Família-Tamanho-Cor.
+                    </div>
+
+                    <div class="alert alert-warning-custom">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção:</strong> Campos marcados com * são obrigatórios.
+                    </div>
+
+                    <div class="alert alert-success-custom">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Status:</strong> A ordem será criada com status "planejado".
+                    </div>
+
+                    <hr>
+
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Campos ETD
+                    </h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <strong>ETD Planejado:</strong> Data estimada no planejamento
+                        </li>
+                        <li class="mb-2">
+                            <strong>ETD Proposto:</strong> Data proposta pelo fornecedor
+                        </li>
+                        <li class="mb-0">
+                            <strong>ETD Real:</strong> Data real de entrega
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para gerar SKU automaticamente
+function gerarSKU() {
+    const familiaSelect = document.getElementById('familia_id');
+    const tamanhoSelect = document.getElementById('tamanho_id');
+    const corSelect = document.getElementById('cor_id');
+    const skuInput = document.getElementById('sku');
+
+    const familia = familiaSelect.options[familiaSelect.selectedIndex]?.text || '';
+    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex]?.text || '';
+    const cor = corSelect.options[corSelect.selectedIndex]?.text || '';
+
+    if (familia && tamanho && cor) {
+        skuInput.value = `${familia}-${tamanho}-${cor}`;
+    } else {
+        skuInput.value = '';
+    }
+}
+
+// Função para calcular valor em USD
+function calcularValorUSD() {
+    const valorBRL = parseFloat(document.getElementById('valor_compra_brl').value) || 0;
+    const cotacao = parseFloat(document.getElementById('cotacao_dolar').value) || 0;
+    const valorUSD = document.getElementById('valor_compra_usd');
+
+    if (valorBRL > 0 && cotacao > 0) {
+        valorUSD.value = (valorBRL / cotacao).toFixed(2);
+    } else {
+        valorUSD.value = '';
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Gerar SKU quando selects mudarem
+    document.getElementById('familia_id').addEventListener('change', gerarSKU);
+    document.getElementById('tamanho_id').addEventListener('change', gerarSKU);
+    document.getElementById('cor_id').addEventListener('change', gerarSKU);
+
+    // Calcular valor USD quando valores mudarem
+    document.getElementById('valor_compra_brl').addEventListener('input', calcularValorUSD);
+    document.getElementById('cotacao_dolar').addEventListener('input', calcularValorUSD);
+
+    // Validação do formulário
+    const form = document.getElementById('ordemCompraForm');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor, preencha todos os campos obrigatórios.');
+        }
+    });
+
+    // Animações de entrada
+    const cards = document.querySelectorAll('.card-custom');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in');
+    });
+});
+</script>
